@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Tema1.ejercicio2;
+package Tema1.ejercicio3;
 
 import java.io.File;
 
@@ -11,7 +11,7 @@ import java.io.File;
  *
  * @author Perig
  */
-public class MostrarDirectorio {
+public class MostrarDirectorioSorted {
     public static void main(String args[]){
         if (args.length!=1) {
             System.out.println("Error, sintaxis incorrecta.");
