@@ -19,7 +19,7 @@ public class Listar {
             mostrarAyuda();
         } else if (args.length==2) {
             File f = new File(args[1]);
-            String p = ".*"+args[0].replace(".", "\\.").replace("?",".")+".*";
+            String p = ".*"+args[0].replace(".", "\\.").replace("?",".").replace("*",".*")+".*";
             Pattern pattern = Pattern.compile(p);
             if(f.isDirectory()) {
                 System.out.println("El contenido del directorio "+f.getAbsolutePath()+" es:");
