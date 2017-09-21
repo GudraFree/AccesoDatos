@@ -16,20 +16,21 @@ import java.util.regex.Pattern;
 public class Listar {
     public static void main(String[] args) {
         if (args.length == 1 && args[0].equals("-h")) {
-            mostrarAyuda();
+            System.out.println(mostrarAyuda());
         } else if (args.length==2) {
             File f = new File(args[1]);
             String p = ".*"+args[0].replace(".", "\\.").replace("?",".").replace("*",".*")+".*";
-            Pattern pattern = Pattern.compile(p);
             if(f.isDirectory()) {
                 System.out.println("El contenido del directorio "+f.getAbsolutePath()+" es:");
                 File[] lista = f.listFiles();
-                for(int i=0; i<lista.length; i++) {
-                    String name = lista[i].getName();
-                    Matcher m=pattern.matcher(name);
-                    if (Pattern.matches(p, name)) {
-                        System.out.print(permisos(lista[i])+" "+lista[i].getName());
-                        if(lista[i].isFile()) System.out.print("\t"+lista[i].length());
+                for (File file : lista) {
+                    String name = file.getName();
+//                    if (Pattern.matches(p, name)) {
+                    if (name.matches(p)) {
+                        System.out.print(permisos(file) + " " + file.getName());
+                        if (file.isFile()) {
+                            System.out.print("\t" + file.length());
+                        }
                         System.out.println();
                     }
                 }
@@ -38,8 +39,9 @@ public class Listar {
                 System.out.print("Error, debe introducirse un directorio");
             }
         } else {
-            System.out.println("Error de sintaxis.");
-            mostrarAyuda();
+            try {
+                throw new InvocacionException("Error de sintaxis\n"+mostrarAyuda());
+            } catch(InvocacionException e) { e.getMessage(); }
         }
     }
     private static String permisos(File f) {
@@ -50,7 +52,13 @@ public class Listar {
         perms+="-";
         return perms;
     }
-    private static void mostrarAyuda() {
-        System.out.println("Para usar el comando, se usa: java Listar.java patrón rutaDirectorio");
+    private static String mostrarAyuda() {
+        return "Para usar el comando, se usa: java Listar.java patrón rutaDirectorio";
+    }
+
+    private static class InvocacionException extends Exception {
+
+        public InvocacionException(String msg) {
+        }
     }
 }

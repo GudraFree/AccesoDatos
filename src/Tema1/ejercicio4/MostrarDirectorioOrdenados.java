@@ -6,6 +6,7 @@
 package Tema1.ejercicio4;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -18,12 +19,12 @@ import java.util.TreeSet;
 public class MostrarDirectorioOrdenados {
     public static void main (String args[]) {
         if (args.length!=1) {
-            System.out.println("Error, sintaxis incorrecta.");
-            mostrarAyuda();
-            return;
+            try {
+                throw new NumeroArgumentosException(mostrarAyuda());
+            } catch (NumeroArgumentosException e) { e.getMessage(); }
+            
         } else if (args[0].equals("-h")) {
-            mostrarAyuda();
-            return;
+            System.out.println(mostrarAyuda());
         } else {
             File f = new File(args[0]);
             if(f.isDirectory()) {
@@ -31,19 +32,34 @@ public class MostrarDirectorioOrdenados {
                 conArrayList(f);
                 conTreeSet(f);
             } else if (f.isFile()) System.out.println("El nombre del fichero es "+f.getName());
-            else System.out.println("El fichero o directorio no existe");
+            else {
+                try {
+                    throw new FileNotFoundException("El fichero o directorio no existe");
+                } catch (FileNotFoundException e) {
+                    e.getMessage();
+                }
+            }
         }
     }
-    private static void mostrarAyuda() {
-        System.out.println("Para usar el comando, se usa: java -jar MostrarDirectorio.java rutaDelArchivoODirectorio");
+    private static String mostrarAyuda() {
+        return "Para usar el comando, se usa: java MostrarDirectorio rutaDelArchivoODirectorio";
     }
     private static void conArrayList(File f) {
         ArrayList<File> directorios = new ArrayList();
         ArrayList<File> archivos = new ArrayList();
         File[] lista = f.listFiles();
-        for(int i=0; i<lista.length; i++) {
-            if (lista[i].isDirectory()) directorios.add(lista[i]);
-            else if (lista[i].isFile()) archivos.add(lista[i]);
+        for (File file : lista) {
+            try {
+                if (file.isDirectory()) {
+                    directorios.add(file);
+                } else if (file.isFile()) {
+                    archivos.add(file);
+                } else throw new FileNotFoundException("Error, fichero no existe");
+            } catch (FileNotFoundException e) {
+                e.getMessage();
+            } catch(Exception e) {
+                e.getMessage();
+            }
         }
         Arrays.sort(directorios.toArray());
         Arrays.sort(archivos.toArray());
@@ -56,9 +72,12 @@ public class MostrarDirectorioOrdenados {
         TreeSet<File> directorios = new TreeSet();
         TreeSet<File> archivos = new TreeSet();
         File[] lista = f.listFiles();
-        for(int i=0; i<lista.length; i++) {
-            if (lista[i].isDirectory()) directorios.add(lista[i]);
-            else if (lista[i].isFile()) archivos.add(lista[i]);
+        for (File file : lista) {
+            if (file.isDirectory()) {
+                directorios.add(file);
+            } else if (file.isFile()) {
+                archivos.add(file);
+            }
         }
         Iterator<File> itDir = directorios.iterator();
         Iterator<File> itAr = archivos.iterator();
@@ -66,6 +85,13 @@ public class MostrarDirectorioOrdenados {
         while(itDir.hasNext()) System.out.println("\t"+itDir.next().getName());
         System.out.println("Archivos");
         while(itAr.hasNext()) System.out.println("\t"+itAr.next().getName());
+    }
+
+    private static class NumeroArgumentosException extends Exception {
+
+        public NumeroArgumentosException(String msg) {
+            super(msg);
+        }
     }
     
 }

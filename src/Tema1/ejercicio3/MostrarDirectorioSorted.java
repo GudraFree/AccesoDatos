@@ -6,6 +6,7 @@
 package Tema1.ejercicio3;
 
 import java.io.File;
+import java.util.Arrays;
 
 /**
  *
@@ -16,22 +17,22 @@ public class MostrarDirectorioSorted {
         if (args.length!=1) {
             System.out.println("Error, sintaxis incorrecta.");
             mostrarAyuda();
-            return;
         } else if (args[0].equals("-h")) {
             mostrarAyuda();
-            return;
         } else {
             File f = new File(args[0]);
             if(f.isDirectory()) {
                 System.out.println("El directorio contiene los siguientes archivos");
-                for(int i=0; i<f.list().length; i++) {
-                    System.out.println(f.list()[i]);
+                String[] lista = f.list();
+                Arrays.sort(lista);
+                for(int i=0; i<lista.length; i++) {
+                    System.out.println(lista[i]);
                 }
             } else if (f.isFile()) System.out.println("El nombre del fichero es "+f.getName());
             else System.out.println("El fichero o directorio no existe");
         }
     }
     private static void mostrarAyuda() {
-        System.out.println("Para usar el comando, se usa: java -jar MostrarDirectorio.java rutaDelArchivoODirectorio");
+        System.out.println("Para usar el comando, se usa: java MostrarDirectorio rutaDelArchivoODirectorio");
     }
 }
