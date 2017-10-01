@@ -25,7 +25,6 @@ public class Listar {
                 File[] lista = f.listFiles();
                 for (File file : lista) {
                     String name = file.getName();
-//                    if (Pattern.matches(p, name)) {
                     if (name.matches(p)) {
                         System.out.print(permisos(file) + " " + file.getName());
                         if (file.isFile()) {
