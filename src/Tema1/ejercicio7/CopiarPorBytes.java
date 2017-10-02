@@ -18,7 +18,7 @@ import java.io.IOException;
 public class CopiarPorBytes {
     public static void main(String[] args) throws IOException { // fDestino fOrigen [-a]
         boolean append=false;
-        if(args.length == 2 || (append=(args.length == 3 && args[2].equals("-a")))) {
+            if(args.length == 2 || (append=(args.length == 3 && args[2].equals("-a")))) {
             System.out.println("debug");
             File fDestino = new File(args[0]);
             File fOrigen = new File(args[1]);
