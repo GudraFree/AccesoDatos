@@ -11,9 +11,9 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Iterator;
 import java.util.Scanner;
+import java.util.TreeSet;
 
 /**
  *
@@ -23,10 +23,11 @@ public class AnyadirAlumnoAlfab {
     public static void main(String[] args) throws IOException{
         File desktop = new File(System.getProperty("user.home"), "Desktop");
         File listaClase = new File (desktop, "ListaDeClase.txt");
-        if(!listaClase.exists()) System.out.println("ERROR FATAL");
+        if(!listaClase.exists()) listaClase.createNewFile();
         BufferedReader in = null;
         PrintWriter out = null;
-        ArrayList<String> listaOrdenada = new ArrayList(); 
+//        ArrayList<String> listaOrdenada = new ArrayList(); 
+        TreeSet<String> listaOrdenada = new TreeSet(); 
         Scanner sc = new Scanner(System.in);
         System.out.println("Introduzca un nuevo alumno");
         String alumno = sc.nextLine();
@@ -38,9 +39,14 @@ public class AnyadirAlumnoAlfab {
                 listaOrdenada.add(l);
             }
             listaOrdenada.add(alumno);
-            Collections.sort(listaOrdenada);
+            Iterator<String> it = listaOrdenada.iterator();
             out = new PrintWriter(new FileWriter(listaClase));
-            for(String alum : listaOrdenada) {
+//            for(String alum : listaOrdenada) {
+//                System.out.println(alum);
+//                out.println(alum);
+//            }
+            while(it.hasNext()) {
+                String alum = it.next();
                 System.out.println(alum);
                 out.println(alum);
             }
