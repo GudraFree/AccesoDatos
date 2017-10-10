@@ -122,32 +122,12 @@ public class GestorEmpleados {
                     
                     
                     //realizamos comprobaciones para verificar que el alta es válida
-//                    if (EmplAux.esInvalida(empleado.nombre)) {
-//                        System.out.println("Alta no realizada, carácter no admitido en "+empleado.nombre);
-//                        break;
-//                    }
-//                    if (EmplAux.esInvalida(empleado.ape1)) {
-//                        System.out.println("Alta no realizada, carácter no admitido en "+empleado.ape1);
-//                        break;
-//                    }
-//                    if (EmplAux.esInvalida(empleado.ape2)) {
-//                        System.out.println("Alta no realizada, carácter no admitido en "+empleado.ape2);
-//                        break;
-//                    }
-//                    if (EmplAux.esInvalida(empleado.depart)) {
-//                        System.out.println("Alta no realizada, carácter no admitido en "+empleado.depart);
-//                        break;
-//                    }
-//                    if (EmplAux.esInvalida(empleado.ciudad)) {
-//                        System.out.println("Alta no realizada, carácter no admitido en "+empleado.ciudad);
-//                        break;
-//                    }
                     if (empleado.salario < 0 || empleado.salario>99999) {
                         System.out.println("Alta no realizada, salario fuera de rango [0-99999]");
                         break;
                     }
                     
-                    //si no pasa alguna de las comprobaciones no llegará a este punto y no se realizará el alta
+                    //si no pasa la comprobación no llegará a este punto y no se realizará el alta
                     
                     //realizamos el alta
                     try {
@@ -199,7 +179,6 @@ public class GestorEmpleados {
                             empleadoAux.salario = dis.readFloat();
                             empleadoAux.control = dis.readByte();
                             listaEmpleados.add(empleadoAux);
-                            System.out.println("Debug: Empleado "+empleadoAux.id+" leído");
                         }
                         dis.close();
                     } catch (IOException e) {} 
@@ -227,8 +206,9 @@ public class GestorEmpleados {
                             dos.writeUTF(emp.ciudad);
                             dos.writeFloat(emp.salario);
                             dos.writeByte(emp.control);
-                            dos.close();
                         }
+                        
+                        dos.close();
                         
                     } catch (IOException e) {}
                     
@@ -258,7 +238,6 @@ public class GestorEmpleados {
                             empleadoAux.salario = dis.readFloat();
                             empleadoAux.control = dis.readByte();
                             listaEmpleados.add(empleadoAux);
-                            System.out.println("Debug: Empleado "+empleadoAux.id+" leído");
                         }
                         dis.close();
                     } catch (IOException e) {} 
@@ -302,8 +281,8 @@ public class GestorEmpleados {
                             dos.writeUTF(empleadoModif.ciudad);
                             dos.writeFloat(empleadoModif.salario);
                             dos.writeByte(empleadoModif.control);
-                            dos.close();
                         }
+                        dos.close();
                         
                     } catch (IOException e) {}
                     
@@ -332,7 +311,6 @@ public class GestorEmpleados {
                             empleadoAux.salario = dis.readFloat();
                             empleadoAux.control = dis.readByte();
                             listaEmpleados.add(empleadoAux);
-                            System.out.println("Debug: Empleado "+empleadoAux.id+" leído");
                         }
                         dis.close();
                     } catch (IOException e) {} 
