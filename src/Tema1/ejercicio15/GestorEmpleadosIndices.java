@@ -13,6 +13,8 @@ Empleado: int id, string nombre, string apellidos, string departamento
 */
 package Tema1.ejercicio15;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -33,7 +35,7 @@ import java.util.TreeMap;
  */
 public class GestorEmpleadosIndices {
     static final byte ACTIVO=1, BORRADO=-1;
-    static File ficheroEmpleados, indexId, indexNombre, gestorEmpleados;
+    static File ficheroEmpleados, indexId, indexNombre, gestorEmpleados, tmp;
     static RandomAccessFile raf;
     static ObjectInputStream ois;
     static ObjectOutputStream oos;
@@ -48,7 +50,7 @@ public class GestorEmpleadosIndices {
         indexNombre = new File(gestorEmpleados,"indexNombre");
         mapNombre = new TreeMap();
         int opcion;
-        while((opcion=menu())!=5) {
+        while((opcion=menu())!=6) {
             switch(opcion) {
                 case 1: // Alta
                     alta();
@@ -61,6 +63,9 @@ public class GestorEmpleadosIndices {
                     break;
                 case 4: // Consulta
                     consulta();
+                    break;
+                case 5: // Reconstruir fichero
+                    reconstr();
                     break;
             }
         }
@@ -77,9 +82,10 @@ public class GestorEmpleadosIndices {
             System.out.println("\t2. Baja");
             System.out.println("\t3. Modificación");
             System.out.println("\t4. Consulta");
-            System.out.println("\t5. Salir");
+            System.out.println("\t5. Reconstruir fichero");
+            System.out.println("\t6. Salir");
             opcion = sc.nextInt();
-            opcionInvalida = opcion<1 || opcion>5;
+            opcionInvalida = opcion<1 || opcion>6;
             if(opcionInvalida) System.out.println("Error, opción introducida no válida\n");
         } while (opcionInvalida);
         sc.nextLine(); //limpiamos scanner
@@ -497,6 +503,72 @@ public class GestorEmpleadosIndices {
                     System.out.println("Error, el objeto no es un TreeMap");
                 }
                 break;
+        }
+    } // fin consulta
+    
+    static void reconstr() {
+        tmp = new File(gestorEmpleados,"tmp");
+        ArrayList<Empleado> empleados = new ArrayList();
+        try {
+            raf = new RandomAccessFile(ficheroEmpleados,"r");
+            while(raf.getFilePointer()<ficheroEmpleados.length()) {
+                Empleado emp = new Empleado();
+                emp.control = raf.readByte();
+                emp.id = raf.readInt();
+                emp.nombre = raf.readUTF();
+                emp.apellidos = raf.readUTF();
+                emp.departamento = raf.readUTF();
+                empleados.add(emp);
+            }
+            raf.close();
+            
+            //si ya existe un fichero temporal lo borro para crearlo en blanco de nuevo
+            if(tmp.exists()) tmp.delete();
+            tmp.createNewFile();
+            
+            //creo los nuevos índices
+            mapId = new TreeMap();
+            mapNombre = new TreeMap();
+            
+            //abro el flujo y escribo cada empleado de la lista
+            raf = new RandomAccessFile(tmp,"rw");
+            for(Empleado emp : empleados) {
+                long pointerPos = raf.getFilePointer();
+                raf.writeByte(emp.control);
+                raf.writeInt(emp.id);
+                raf.writeUTF(emp.nombre);
+                raf.writeUTF(emp.apellidos);
+                raf.writeUTF(emp.departamento);
+                
+                // Operaciones del índice por ID
+                // añadimos una clave al treemap
+                mapId.put(emp.id,pointerPos);
+
+                // Operaciones del índice por nombre y apellidos
+                // añadimos una clave al treemap
+                mapNombre.put(pointerPos,emp.apellidos+" "+emp.nombre);
+            }
+
+            //escribimos el Treemap en el archivo índice 
+            oos = new ObjectOutputStream(new FileOutputStream(indexId, false)); //append en false, que sobreescriba
+            oos.writeObject(mapId);
+            oos.close();
+
+            //escribimos el Treemap en el archivo índice 
+            oos = new ObjectOutputStream(new FileOutputStream(indexNombre, false)); //append en false, que sobreescriba
+            oos.writeObject(mapNombre);
+            oos.close();
+            
+            //cerramos flujo del RAF
+            raf.close();
+            
+            
+            
+            tmp.renameTo(ficheroEmpleados);
+        } catch (FileNotFoundException e) {
+            System.out.println("Error, fichero no encontrado");
+        } catch (IOException e) {
+            System.out.println("Error de E/S");
         }
     }
     
