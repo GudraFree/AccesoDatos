@@ -97,8 +97,7 @@ public class GestorEmpleadosDOM {
 
     static void alta() {
         int id = 0;
-        boolean ficheroCreado = ficheroEmpleados.exists();
-        if (ficheroCreado) {
+        if (ficheroEmpleados.exists()) {
             // leer el fichero
             try {
                 // factory to builder -> parse a file to document
@@ -118,27 +117,25 @@ public class GestorEmpleadosDOM {
             }
         }
 
-        Empleado emp = new Empleado();
         sc = new Scanner(System.in);
 
         //pedimos los datos y los almacenamos en el objeto Empleado creado
-        emp.id = id;
         System.out.println("Introduzca nombre empleado");
-        emp.nombre = sc.nextLine();
+        String nombre = sc.nextLine();
         System.out.println("Introduzca apellidos empleado");
-        emp.apellidos = sc.nextLine();
+        String apellidos = sc.nextLine();
         System.out.println("Introduzca departamento empleado");
-        emp.departamento = sc.nextLine();
+        String departamento = sc.nextLine();
         
         //creamos el elemento empleado
         Element empleado = document.createElement("empleado");
         //lo añadimos al elemento raíz del documento (getDocumentElement)
         document.getDocumentElement().appendChild(empleado);
         
-        crearElemento("id",emp.id+"",empleado);
-        crearElemento("nombre",emp.nombre,empleado);
-        crearElemento("apellidos",emp.apellidos,empleado);
-        crearElemento("departamento",emp.departamento,empleado);
+        crearElemento("id",id+"",empleado);
+        crearElemento("nombre",nombre,empleado);
+        crearElemento("apellidos",apellidos,empleado);
+        crearElemento("departamento",departamento,empleado);
         
         
         //generamos el documento XML
@@ -154,27 +151,196 @@ public class GestorEmpleadosDOM {
     } // fin alta()
 
     static void baja() {
-        // TODO: implementar baja
+        // leemos el documento. Si no existe terminamos el método
+        if (ficheroEmpleados.exists()) {
+            // leer el fichero
+            try {
+                // factory to builder -> parse a file to document
+                document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(ficheroEmpleados);
+                document.getDocumentElement().normalize(); // limpia el documento
+            } catch (ParserConfigurationException | SAXException | IOException e) {
+            }
+        } else {
+            System.out.println("Error, debe realizar un alta antes de realizar una baja");
+            return;
+        }
+        
+        // pedimos el id a dar de baja
+        System.out.println("Introduzca el id del empleado a dar de baja");
+        int id = sc.nextInt();
+        sc.nextLine(); //limpiamos scanner
+        
+        // obtenemos la lista de elementos empleados
+        NodeList empleados = document.getElementsByTagName("empleado");
+        
+        boolean idEncontrado = false;
+        
+        // recorremos la lista de empleados
+        for(int i=0; i<empleados.getLength(); i++) {
+            Node empNode = empleados.item(i);
+            // comprobamos que el nodo empleado es un elemento
+            if (empNode.getNodeType()==Node.ELEMENT_NODE) {
+                Element empElem = (Element) empNode; //lo convertimos a Element para poder trabajar con él
+                int empId = Integer.parseInt(getNodo("id", empElem)); // obtenemos el id
+                if(id==empId) { // comparamos con el id a borrar
+                    borrarNodo(empNode); //si coincide lo quitamos de su padre
+                    idEncontrado = true;
+                }
+            }
+        }
+        
+        // comprobamos si se ha realizado la baja. Si no, volvemos, para ahorrarnos la computación de generar el xml
+        if (!idEncontrado) {
+            System.out.println("Error, id de empleado inexistente");
+            return;
+        }
+        
+        //generamos el documento XML
+        try {
+            Source source = new DOMSource(document);
+            Result result = new StreamResult(ficheroEmpleados);
+            
+            // factory instance to transformer
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.transform(source, result);
+        } catch (Exception e) {}
 
     } //fin baja
 
     static void modif() {
-        // TODO: implementar modif
+        // leemos el documento. Si no existe terminamos el método
+        if (ficheroEmpleados.exists()) {
+            // leer el fichero
+            try {
+                // factory to builder -> parse a file to document
+                document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(ficheroEmpleados);
+                document.getDocumentElement().normalize(); // limpia el documento
+            } catch (ParserConfigurationException | SAXException | IOException e) {
+            }
+        } else {
+            System.out.println("Error, debe realizar un alta antes de realizar una modificación");
+            return;
+        }
+        
+        // pedimos el id a modificar
+        System.out.println("Introduzca el id del empleado a modificar");
+        int id = sc.nextInt();
+        sc.nextLine(); //limpiamos scanner
+        
+        // obtenemos la lista de elementos empleados
+        NodeList empleados = document.getElementsByTagName("empleado");
+        
+        boolean idEncontrado = false;
+        
+        // recorremos la lista de empleados
+        for(int i=0; i<empleados.getLength(); i++) {
+            Node empNode = empleados.item(i);
+            // comprobamos que el nodo empleado es un elemento
+            if (empNode.getNodeType()==Node.ELEMENT_NODE) {
+                Element empElem = (Element) empNode; //lo convertimos a Element para poder trabajar con él
+                int empId = Integer.parseInt(getNodo("id", empElem)); // obtenemos el id
+                if(id==empId) { // comparamos con el id a modificar
+                    sc = new Scanner(System.in);
+                    System.out.println("Introduzca nuevo nombre empleado");
+                    String nombre = sc.nextLine();
+                    System.out.println("Introduzca nuevos apellidos empleado");
+                    String apellidos = sc.nextLine();
+                    System.out.println("Introduzca nuevo departamento empleado");
+                    String departamento = sc.nextLine();
+                    
+                    //borramos el nodo antiguo
+                    borrarNodo(empNode);
+                    
+                    // creamos el nuevo elemento empleado y sus hijos
+                    Element empleado = document.createElement("empleado");
+                    document.getDocumentElement().appendChild(empleado);
+                    
+                    crearElemento("id", id+"", empleado);
+                    crearElemento("nombre", nombre, empleado);
+                    crearElemento("apellidos", apellidos, empleado);
+                    crearElemento("departamento", departamento, empleado);
+                    
+                    idEncontrado = true;
+                }
+            }
+        }
+        
+        // comprobamos si se ha realizado la modificación. Si no, volvemos, para ahorrarnos la computación de generar el xml
+        if (!idEncontrado) {
+            System.out.println("Error, id de empleado inexistente");
+            return;
+        }
+        
+        //generamos el documento XML
+        try {
+            Source source = new DOMSource(document);
+            Result result = new StreamResult(ficheroEmpleados);
+            
+            // factory instance to transformer
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.transform(source, result);
+        } catch (Exception e) {}
 
     } //fin modif
 
     static void consulta() {
-        //controlamos que hay al menos un empleado al que realizar la consulta (el fichero se crea al realizar un alta)
-        if (!ficheroEmpleados.exists()) {
-            System.out.println("Error, debe realizar un alta antes de realizar una consulta");
+        if (ficheroEmpleados.exists()) {
+            // leer el fichero
+            try {
+                // factory to builder -> parse a file to document
+                document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(ficheroEmpleados);
+                document.getDocumentElement().normalize(); // limpia el documento
+            } catch (ParserConfigurationException | SAXException | IOException e) {
+            }
+        } else {
+            System.out.println("Error, debe realizar un alta antes de realizar una modificación");
             return;
         }
+        
+        // obtenemos la lista de elementos empleados
+        NodeList empleados = document.getElementsByTagName("empleado");
+
+        boolean idEncontrado = false;
 
         switch (menuConsulta()) {
             case 1: // consulta por ID
-            // TODO: implementar consulta.id
+                // pedimos el id a consultar
+                System.out.println("Introduzca el id del empleado a consultar");
+                int id = sc.nextInt();
+                sc.nextLine(); //limpiamos scanner
+
+                // recorremos la lista de empleados
+                for(int i=0; i<empleados.getLength(); i++) {
+                    Node empNode = empleados.item(i);
+                    // comprobamos que el nodo empleado es un elemento
+                    if (empNode.getNodeType()==Node.ELEMENT_NODE) {
+                        Element empElem = (Element) empNode; //lo convertimos a Element para poder trabajar con él
+                        int empId = Integer.parseInt(getNodo("id", empElem)); // obtenemos el id
+                        if(id==empId) { // comparamos con el id a consultar
+                            mostrarEmpleadoElem(empElem); //si coincide lo mostramos
+                            idEncontrado = true;
+                        }
+                    }
+                }
+
+                // comprobamos si se ha realizado la consulta.
+                if (!idEncontrado) {
+                    System.out.println("Error, id de empleado inexistente");
+                }
+                break;
             case 2: // listar todos los empleados
                 // TODO: implementar consulta.listar
+
+                // recorremos la lista de empleados
+                for(int i=0; i<empleados.getLength(); i++) {
+                    Node empNode = empleados.item(i);
+                    // comprobamos que el nodo empleado es un elemento
+                    if (empNode.getNodeType()==Node.ELEMENT_NODE) {
+                        Element empElem = (Element) empNode; //lo convertimos a Element para poder trabajar con él
+                        mostrarEmpleadoElem(empElem); //si coincide lo mostramos
+                        idEncontrado = true;
+                    }
+                }
                 break;
         }
     }
@@ -227,5 +393,16 @@ public class GestorEmpleadosDOM {
         padre.appendChild(elem); // le añado al elemento padre el hijo
         elem.appendChild(texto); // al hijo le añado su contenido
         
+    }
+    
+    static void borrarNodo(Node node) {
+        node.getParentNode().removeChild(node);
+    }
+    
+    static void mostrarEmpleadoElem(Element empleado) {
+        System.out.println("Empleado #"+getNodo("id",empleado));
+        System.out.println("\tNombre: "+getNodo("nombre",empleado));
+        System.out.println("\tApellidos: "+getNodo("apellidos",empleado));
+        System.out.println("\tDepartamento: "+getNodo("departamento",empleado));
     }
 }

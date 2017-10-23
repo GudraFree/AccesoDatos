@@ -401,13 +401,14 @@ public class GestorEmpleadosIndices {
                 break;
             case 2: // consulta por apellidos, nombre
                 /*
-                 TODO: arreglar lo de nombre y apellidos. Ideas:
+                 Arreglar lo de nombre y apellidos. Ideas:
                  1. usar la (long)posicion como campo clave y abstraernos del problema. 
                         PROS: funcionaría y sería fácil 
                         CONTRAS: no es un uso moralmente correcto de los maps
                  2. ArrayList<[apellidos+nombre, posicion]> para el indexNombre
                         PROS: permite clave duplicada de apellidos+nombre
                         CONTRAS: tener que cambiar todo el código pues ya está como TreeMap (coñazo). ¿Es realmente un índice?
+                Elegida opción 1. Fuck the police
                 */
                 //obtenemos el treemap que contiene el índice
                 try {
