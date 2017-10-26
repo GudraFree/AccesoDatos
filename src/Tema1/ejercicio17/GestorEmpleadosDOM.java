@@ -329,7 +329,6 @@ public class GestorEmpleadosDOM {
                 }
                 break;
             case 2: // listar todos los empleados
-                // TODO: implementar consulta.listar
 
                 // recorremos la lista de empleados
                 for(int i=0; i<empleados.getLength(); i++) {
