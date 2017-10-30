@@ -1,1 +1,19 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><empleados><empleado><id>0</id><nombre>Pepe</nombre><apellidos>Perez</apellidos><departamento>Programacion</departamento></empleado><empleado><id>2</id><nombre>Manolo</nombre><apellidos>Molina</apellidos><departamento>Marketing</departamento></empleado><empleado><id>3</id><nombre>Vicente</nombre><apellidos>Verde</apellidos><departamento>Ventas</departamento></empleado></empleados>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<empleados>
+    <empleado id="1">
+        <apellido>alvarez</apellido>
+        <dep>1</dep>
+        <salario>1000.0</salario>
+    </empleado>
+    <empleado id="2">
+        <apellido>barrientos</apellido>
+        <dep>2</dep>
+        <salario>2000.0</salario>
+    </empleado>
+    <empleado id="3">
+        <apellido>cazorla</apellido>
+        <dep>3</dep>
+        <salario>3000.0</salario>
+    </empleado>
+</empleados>
+

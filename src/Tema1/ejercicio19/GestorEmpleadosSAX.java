@@ -100,12 +100,18 @@ public class GestorEmpleadosSAX {
     static void consulta() {
         // TODO: implementar consulta
         try {
+            listaEmp = new LinkedList();
             SAXParserFactory.newInstance().newSAXParser().parse(ficheroEmpleados, new EmpHandler());
         } catch (Exception e) {}
 
         switch (menuConsulta()) {
             case 1: // consulta por ID
                 // TODO: implementar consulta.id
+                System.out.println("Introduzca el ID del empleado a buscar");
+                int idABuscar = sc.nextInt();
+                for(Empleado em : listaEmp) {
+                    if (em.id==idABuscar) em.mostrarEmpleado();
+                }
                 break;
             case 2: // listar todos los empleados
                 // TODO: implementar consulta.listar
@@ -136,6 +142,7 @@ public class GestorEmpleadosSAX {
             if(qName.equals("empleado")) {
                 listaEmp.add(emp);
             }
+            currentElement = "";
         }
 
         @Override
@@ -143,7 +150,7 @@ public class GestorEmpleadosSAX {
 //            if(currentElement.equals("nombre")) emp.nombre = new String(ch, start, length);
 //            if(currentElement.equals("apell")) emp.apellidos = new String(ch, start, length);
 //            if(currentElement.equals("depart")) emp.departamento = new String(ch, start, length);
-            if(currentElement.equals("apellidos")) emp.nombre = new String(ch, start, length);
+            if(currentElement.equals("apellido")) emp.nombre = new String(ch, start, length);
             if(currentElement.equals("dep")) emp.apellidos = new String(ch, start, length);
             if(currentElement.equals("salario")) emp.departamento = new String(ch, start, length);
             
