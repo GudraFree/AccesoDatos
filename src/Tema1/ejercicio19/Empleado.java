@@ -19,27 +19,25 @@ import Tema1.ejercicio15.*;
  * </empleado>
  */
 public class Empleado {
-    int id;
+    ID id;
     String nombre;
     String apellidos;
     String departamento;
-    float salario;
     
     public Empleado() {
     }
 
-    public Empleado(int id, String nombre, String apellidos, String departamento, float salario) {
-        this.id = id;
+    public Empleado(int id, String nombre, String apellidos, String departamento) {
+        this.id = new ID(id);
         this.nombre = nombre;
         this.apellidos = apellidos;
         this.departamento = departamento;
-        this.salario = salario;
     }
 
     
     
     public void mostrarEmpleado() {
-        System.out.println("\nEmpleado #"+id+"\n\tNombre: "+apellidos+", "+nombre+"\n\tDepartamento: "+departamento);
+        System.out.println("\nEmpleado #"+id.getId()+"\n\tNombre: "+apellidos+", "+nombre+"\n\tDepartamento: "+departamento);
     }
 
     public String getApellidos() {
@@ -51,15 +49,11 @@ public class Empleado {
     }
 
     public int getId() {
-        return id;
+        return id.getId();
     }
 
     public String getNombre() {
         return nombre;
-    }
-
-    public float getSalario() {
-        return salario;
     }
 
     public void setApellidos(String apellidos) {
@@ -71,15 +65,12 @@ public class Empleado {
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.id = new ID(id);
     }
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
-
-    public void setSalario(float salario) {
-        this.salario = salario;
-    }
+    
     
 }
