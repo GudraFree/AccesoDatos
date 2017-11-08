@@ -9,6 +9,8 @@ Menú
 
 Empleado: int id, string nombre, string apellidos, string departamento
 
+TODO: comentar, modular, estudiar
+TODO: índice por nombre debe tener key nombre y value arraylist de posiciones
 
 */
 package Tema1.ejercicio15;

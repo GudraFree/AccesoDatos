@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Tema1.ejercicio5;
+package Tema1.ejercicio05;
 
 import java.io.File;
 import java.util.regex.Matcher;
