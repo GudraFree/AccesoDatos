@@ -119,6 +119,7 @@ public class GestorEmpleadosDOM {
 
         sc = new Scanner(System.in);
 
+        //TODO: crear módulo que devuelva un objeto empleado
         //pedimos los datos y los almacenamos en el objeto Empleado creado
         System.out.println("Introduzca nombre empleado");
         String nombre = sc.nextLine();
@@ -132,6 +133,7 @@ public class GestorEmpleadosDOM {
         //lo añadimos al elemento raíz del documento (getDocumentElement)
         document.getDocumentElement().appendChild(empleado);
         
+        // TODO: poner ID como atributo
         crearElemento("id",id+"",empleado);
         crearElemento("nombre",nombre,empleado);
         crearElemento("apellidos",apellidos,empleado);
