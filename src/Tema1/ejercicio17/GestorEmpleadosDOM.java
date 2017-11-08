@@ -106,26 +106,7 @@ public class GestorEmpleadosDOM {
     }
 
     static void alta() {
-        int id = 0;
-        if (ficheroEmpleados.exists()) {
-            // leer el fichero
-            try {
-                // factory to builder -> parse a file to document
-                document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(ficheroEmpleados);
-                document.getDocumentElement().normalize(); // limpia el documento
-            } catch (ParserConfigurationException | SAXException | IOException e) {
-            }
-            // leer el último id
-            id = ultimoId(document) +1;
-        } else {
-            // crear el fichero
-            try {
-                // factory to builder to DOMImplementation to document
-                document = DocumentBuilderFactory.newInstance().newDocumentBuilder().getDOMImplementation().createDocument(null, "empleados", null);
-                document.setXmlVersion("1.0");
-            } catch (ParserConfigurationException e) {
-            }
-        }
+        int id = comprobacionInicialFicheros();
 
         sc = new Scanner(System.in);
 
@@ -359,6 +340,31 @@ public class GestorEmpleadosDOM {
 
         return id;
     }
+    
+    static int comprobacionInicialFicheros() { //devuelve el id del siguiente empleado
+        int id = 0;
+        if (ficheroEmpleados.exists()) {
+            // leer el fichero
+            try {
+                // factory to builder -> parse a file to document
+                document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(ficheroEmpleados);
+                document.getDocumentElement().normalize(); // limpia el documento
+            } catch (ParserConfigurationException | SAXException | IOException e) {
+            }
+            // leer el último id
+            id = ultimoId(document) +1;
+        } else {
+            // crear el fichero
+            try {
+                // factory to builder to DOMImplementation to document
+                document = DocumentBuilderFactory.newInstance().newDocumentBuilder().getDOMImplementation().createDocument(null, "empleados", null);
+                document.setXmlVersion("1.0");
+            } catch (ParserConfigurationException e) {
+            }
+        }
+        return id;
+        
+    }
 
     private static String getNodo(String etiqueta, Element elem) {
         //0º)elem
@@ -399,7 +405,7 @@ public class GestorEmpleadosDOM {
         node.getParentNode().removeChild(node);
     }
     
-    static void mostrarEmpleadoElem(Element empleado) {
+    static void mostrarEmpleadoElem(Element empleado) { //muestra el empleado almacenado en un elemento empleado (este es un comentario realmente necesario. Rubén la chupa)
         System.out.println("Empleado #"+empleado.getAttribute("id"));
         System.out.println("\tNombre: "+getNodo("nombre",empleado));
         System.out.println("\tApellidos: "+getNodo("apellidos",empleado));

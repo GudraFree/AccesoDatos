@@ -7,11 +7,12 @@ package Tema1.ejercicio19;
 
 import com.thoughtworks.xstream.XStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.InputMismatchException;
 import java.util.Scanner;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -120,8 +121,20 @@ public class GestorEmpleadosSAX {
         //leemos el fichero XML
         leerXML();
         
-        System.out.println("Introduzca el id del empleado a dar de baja");
-        int idABuscar = sc.nextInt();
+        // pedir un ID con tratamiento de excepciones
+        boolean excepcion = false;
+        int idABuscar = 0;
+        do {
+            System.out.println("Introduzca el id del empleado a dar de baja");
+            try {
+                idABuscar = sc.nextInt();
+                excepcion = false;
+            } catch (InputMismatchException e) {
+                System.out.println("Error, debe introducir un número entero");
+                excepcion = true;
+                sc.nextLine(); //limpiar escaner. Muy necesario o bucle infinito
+            }
+        } while(excepcion);
         sc.nextLine(); //limpiamos escaner
         
         //obtenemos el empleado a borrar
@@ -145,8 +158,20 @@ public class GestorEmpleadosSAX {
         //leemos el fichero XML
         leerXML();
         
-        System.out.println("Introduzca el id del empleado a modificar");
-        int idABuscar = sc.nextInt();
+        // pedir un ID con tratamiento de excepciones
+        boolean excepcion = false;
+        int idABuscar = 0;
+        do {
+            System.out.println("Introduzca el id del empleado a dar de baja");
+            try {
+                idABuscar = sc.nextInt();
+                excepcion = false;
+            } catch (InputMismatchException e) {
+                System.out.println("Error, debe introducir un número entero");
+                excepcion = true;
+                sc.nextLine(); //limpiar escaner. Muy necesario o bucle infinito
+            }
+        } while(excepcion);
         sc.nextLine(); //limpiamos escaner
         
         //obtenemos el empleado a borrar
@@ -171,8 +196,22 @@ public class GestorEmpleadosSAX {
         switch (menuConsulta()) {
             case 1: // consulta por ID
                 // Pedimos ID a buscar
-                System.out.println("Introduzca el ID del empleado a buscar");
-                int idABuscar = sc.nextInt();
+                // pedir un ID con tratamiento de excepciones
+                boolean excepcion = false;
+                int idABuscar = 0;
+                do {
+                    System.out.println("Introduzca el id del empleado a dar de baja");
+                    try {
+                        idABuscar = sc.nextInt();
+                        excepcion = false;
+                    } catch (InputMismatchException e) {
+                        System.out.println("Error, debe introducir un número entero");
+                        excepcion = true;
+                        sc.nextLine(); //limpiar escaner. Muy necesario o bucle infinito
+                    }
+                } while(excepcion);
+                sc.nextLine(); //limpiamos escaner
+                
                 listaEmp.mostrarEmpleados(idABuscar);
                 break;
             case 2: // listar todos los empleados
@@ -182,7 +221,7 @@ public class GestorEmpleadosSAX {
         }
     }
     
-    static int comprobacionInicialFicheros() { //devuelve el último ID
+    static int comprobacionInicialFicheros() { //devuelve el ID a usar en la siguiente alta
         int id = 0;
         //creamos los ficheros si estos no existen
         try { 
@@ -191,7 +230,7 @@ public class GestorEmpleadosSAX {
                 ficheroEmpleados.createNewFile();
                 listaEmp = new Empleados();
             }
-            else {
+            else { //si el ficheroEmpleados existe, lo leemos y devolvemos el id más alto (es el siguiente que hay que poner)
                 leerXML();
                 id = listaEmp.idMasAlto();
             }
@@ -204,22 +243,30 @@ public class GestorEmpleadosSAX {
     
     static void escribirEnXML() {
         XStream xs = new XStream();
-        xs.alias("empleados",Empleados.class);
-        xs.alias("empleado", Empleado.class);
-        xs.addImplicitCollection(Empleados.class, "listaEmpleados");
-        xs.useAttributeFor(Empleado.class, "id");
-        xs.registerConverter(new IDConverter());
+        xs.alias("empleados",Empleados.class); //renombramos la clase Empleados como <empleados>
+        xs.alias("empleado", Empleado.class); // renombramos la clase Empleado como <empleado>
+        xs.addImplicitCollection(Empleados.class, "listaEmpleados"); // omitimos la colección listaEmpleados de la clase Empleados
+        xs.useAttributeFor(Empleado.class, "id"); // indicamos que el campo "id" de empleado será un atributo
+        xs.registerConverter(new IDConverter()); // y asignamos el convertidor necesario para usarlo
         try {
-            FileOutputStream fos = new FileOutputStream(ficheroEmpleados);
-            xs.toXML(listaEmp,fos);
-        } catch (Exception e) {}
+            FileOutputStream fos = new FileOutputStream(ficheroEmpleados); //creamos el FOS con el fichero xml donde guardaremos los datos
+            xs.toXML(listaEmp,fos); // y pasamos a XML el objeto de la clase Empleados
+        } catch (FileNotFoundException e) {
+            System.out.println("Error, archivo no encontrado");
+        }
     }
     
     static void leerXML() {
         try {
             listaEmp = new Empleados();
             SAXParserFactory.newInstance().newSAXParser().parse(ficheroEmpleados, new EmpHandler());
-        } catch (Exception e) {}
+        } catch (ParserConfigurationException e) {
+            System.out.println("Error de configuración del parseador");
+        } catch (SAXException e) {
+            System.out.println("Error de SAX");
+        } catch (IOException e) {
+            System.out.println("Error de E/S");
+        }
     }
     
     static String currentElement;

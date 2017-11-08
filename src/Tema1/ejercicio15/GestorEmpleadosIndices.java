@@ -10,7 +10,6 @@ Menú
 Empleado: int id, string nombre, string apellidos, string departamento
 
 TODO: comentar, modular, estudiar
-TODO: índice por nombre debe tener key nombre y value arraylist de posiciones
 
 */
 package Tema1.ejercicio15;
@@ -41,15 +40,14 @@ public class GestorEmpleadosIndices {
     static ObjectInputStream ois;
     static ObjectOutputStream oos;
     static TreeMap<Integer,Long> mapId;
-    static TreeMap<Long,String> mapNombre;
+    static TreeMap<String,ArrayList<Long>> mapNombre;
     static Scanner sc;
     public static void main(String[] args) {
+        // inicializamos todo lo necesario
         gestorEmpleados = new File("gestorEmpleados");
         ficheroEmpleados=new File(gestorEmpleados,"empleadosRAF.dat");
         indexId = new File(gestorEmpleados,"indexId");
-        mapId = new TreeMap();
         indexNombre = new File(gestorEmpleados,"indexNombre");
-        mapNombre = new TreeMap();
         int opcion;
         while((opcion=menu())!=6) {
             switch(opcion) {
@@ -159,15 +157,7 @@ public class GestorEmpleadosIndices {
         }
         
         //creamos el objeto empleado y pedimos sus datos
-        Empleado nuevoEmpleado = new Empleado();
-        nuevoEmpleado.control = ACTIVO;
-        nuevoEmpleado.id = id;
-        System.out.println("Introduzca nombre empleado");
-        nuevoEmpleado.nombre=sc.nextLine();
-        System.out.println("Introduzca apellidos empleado");
-        nuevoEmpleado.apellidos=sc.nextLine();
-        System.out.println("Introduzca departamento empleado");
-        nuevoEmpleado.departamento=sc.nextLine();
+        Empleado nuevoEmpleado = Empleado.pedirEmpleado(ACTIVO, id);
         
         try {
             //creo el RAF y escribo en el fichero, obteniendo primero la posición antes de escribir
@@ -186,7 +176,7 @@ public class GestorEmpleadosIndices {
             ois = new ObjectInputStream(new FileInputStream(indexId)); 
             if(ois.available()>0) {
                 mapId = (TreeMap)ois.readObject();
-            }
+            } else mapId = new TreeMap();
             ois.close();
             mapId.put(nuevoEmpleado.id,pointerPos);
             
@@ -200,8 +190,12 @@ public class GestorEmpleadosIndices {
             ois = new ObjectInputStream(new FileInputStream(indexNombre));
             if(ois.available()>0) {
                 mapNombre = (TreeMap)ois.readObject();
-            }
-            mapNombre.put(pointerPos,nuevoEmpleado.apellidos+" "+nuevoEmpleado.nombre);
+            } else mapNombre = new TreeMap();
+            ArrayList<Long> posicionesPorNombre = mapNombre.get(nuevoEmpleado.apellidos+" "+nuevoEmpleado.nombre);
+            boolean nombreNuevo = posicionesPorNombre==null;
+            if(nombreNuevo) posicionesPorNombre = new ArrayList();
+            posicionesPorNombre.add(pointerPos);
+            mapNombre.put(nuevoEmpleado.apellidos+" "+nuevoEmpleado.nombre,posicionesPorNombre);
             ois.close();
             
             //escribimos el Treemap en el archivo índice 
@@ -309,19 +303,12 @@ public class GestorEmpleadosIndices {
                 
                 
                 try {
-                    Empleado emp = new Empleado();
-                    emp.id = idABuscar;
+                    Empleado emp = null;
                     raf = new RandomAccessFile(ficheroEmpleados,"rw");
                     raf.seek((Long)e.getValue());
                     if(raf.readByte()!=BORRADO) {
                         //creamos el objeto empleado y pedimos sus datos
-                        
-                        System.out.println("Introduzca nuevo nombre empleado");
-                        emp.nombre=sc.nextLine();
-                        System.out.println("Introduzca nuevos apellidos empleado");
-                        emp.apellidos=sc.nextLine();
-                        System.out.println("Introduzca nuevo departamento empleado");
-                        emp.departamento=sc.nextLine();
+                        emp = Empleado.pedirEmpleado(ACTIVO, idABuscar);
                         
                         raf.seek((Long)e.getValue());
                         raf.writeByte(ACTIVO);
@@ -330,7 +317,7 @@ public class GestorEmpleadosIndices {
                         raf.writeUTF(emp.apellidos);
                         raf.writeUTF(emp.departamento);
                         System.out.println("Modificación realizada con éxito");
-                    } else System.out.println("Error, el empleado #"+emp.id+" no está dado de alta");
+                    } else System.out.println("Error, el empleado #"+idABuscar+" no está dado de alta");
                     raf.close();
                     encontrado = true;
                 } catch(FileNotFoundException ex) {
@@ -415,16 +402,6 @@ public class GestorEmpleadosIndices {
                 
                 break;
             case 2: // consulta por apellidos, nombre
-                /*
-                 Arreglar lo de nombre y apellidos. Ideas:
-                 1. usar la (long)posicion como campo clave y abstraernos del problema. 
-                        PROS: funcionaría y sería fácil 
-                        CONTRAS: no es un uso moralmente correcto de los maps
-                 2. ArrayList<[apellidos+nombre, posicion]> para el indexNombre
-                        PROS: permite clave duplicada de apellidos+nombre
-                        CONTRAS: tener que cambiar todo el código pues ya está como TreeMap (coñazo). ¿Es realmente un índice?
-                Elegida opción 1. Fuck the police
-                */
                 //obtenemos el treemap que contiene el índice
                 try {
                     ois = new ObjectInputStream(new FileInputStream(indexNombre));
@@ -446,12 +423,13 @@ public class GestorEmpleadosIndices {
                 //recorremos todo el mapa para encontrar el ID que estamos buscando y su posición en el fichero
                 ArrayList<Long> posiciones = new ArrayList();
                 
-                it = mapNombre.entrySet().iterator();
+                it = mapNombre.entrySet().iterator(); 
                 
-                while(it.hasNext()) {
+                while(it.hasNext()) { //iteramos todas las entradas
                     Map.Entry e = (Map.Entry)it.next();
-                    if(((String)e.getValue()).equals(apellidos+" "+nombre)) {
-                        posiciones.add((Long)e.getKey());
+                    if(((String)e.getKey()).equals(apellidos+" "+nombre)) { 
+                        // iteramos el array de posiciones que está en el campo value del entry
+                        for (Long p : (ArrayList<Long>)e.getValue()) posiciones.add(p);
                     }
                 }
                 
@@ -562,7 +540,11 @@ public class GestorEmpleadosIndices {
 
                 // Operaciones del índice por nombre y apellidos
                 // añadimos una clave al treemap
-                mapNombre.put(pointerPos,emp.apellidos+" "+emp.nombre);
+                ArrayList<Long> posicionesPorNombre = mapNombre.get(emp.apellidos+" "+emp.nombre);
+                boolean nombreNuevo = posicionesPorNombre==null;
+                if(nombreNuevo) posicionesPorNombre = new ArrayList();
+                posicionesPorNombre.add(pointerPos);
+                mapNombre.put(emp.apellidos+" "+emp.nombre,posicionesPorNombre);
             }
 
             //escribimos el Treemap en el archivo índice 
@@ -581,6 +563,7 @@ public class GestorEmpleadosIndices {
             
             
             tmp.renameTo(ficheroEmpleados);
+            tmp.delete();
         } catch (FileNotFoundException e) {
             System.out.println("Error, fichero no encontrado");
         } catch (IOException e) {

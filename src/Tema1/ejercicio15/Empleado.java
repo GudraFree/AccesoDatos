@@ -5,6 +5,8 @@
  */
 package Tema1.ejercicio15;
 
+import java.util.Scanner;
+
 /**
  *
  * @author Perig
@@ -29,6 +31,17 @@ public class Empleado {
     
     public void mostrarEmpleado() {
         System.out.println("\nEmpleado #"+id+"\n\tNombre: "+apellidos+", "+nombre+"\n\tDepartamento: "+departamento);
+    }
+    
+    public static Empleado pedirEmpleado(byte control, int id) {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Introduzca nombre empleado");
+        String nombre = sc.nextLine();
+        System.out.println("Introduzca apellidos empleado");
+        String apellidos = sc.nextLine();
+        System.out.println("Introduzca departamento empleado");
+        String departamento = sc.nextLine();
+        return new Empleado(control,id,nombre,apellidos,departamento);
     }
 
     public String getApellidos() {
