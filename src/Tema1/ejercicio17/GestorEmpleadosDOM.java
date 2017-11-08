@@ -7,6 +7,7 @@ package Tema1.ejercicio17;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -29,14 +30,13 @@ import org.xml.sax.SAXException;
  */
 public class GestorEmpleadosDOM {
 
-    static final byte ACTIVO = 1, BORRADO = -1;
     static File ficheroEmpleados, gestorEmpleados;
     static Scanner sc;
     static Document document;
 
     public static void main(String[] args) {
         gestorEmpleados = new File("gestorEmpleados");
-        ficheroEmpleados = new File(gestorEmpleados, "empleados.xml");
+        ficheroEmpleados = new File(gestorEmpleados, "empleadosDOM.xml");
         int opcion;
         while ((opcion = menu()) != 5) {
             switch (opcion) {
@@ -59,8 +59,8 @@ public class GestorEmpleadosDOM {
 
     static int menu() {
         sc = new Scanner(System.in);
-        int opcion;
-        boolean opcionInvalida;
+        int opcion = 0; //valor 0 por defecto
+        boolean opcionInvalida = true; // valor true por defecto, necesario para segunda iteración bucle si salta excepción
         do {
             System.out.println("\nGestor de empleados con DOM. Por favor introduzca una opción");
             System.out.println("\t1. Alta");
@@ -68,27 +68,37 @@ public class GestorEmpleadosDOM {
             System.out.println("\t3. Modificación");
             System.out.println("\t4. Consulta");
             System.out.println("\t5. Salir");
-            opcion = sc.nextInt();
-            opcionInvalida = opcion < 1 || opcion > 5;
-            if (opcionInvalida) {
-                System.out.println("Error, opción introducida no válida\n");
+            try {
+                opcion = sc.nextInt();
+                opcionInvalida = opcion < 1 || opcion > 5;
+                if (opcionInvalida) {
+                    System.out.println("Error, opción introducida no válida\n");
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Error, debe introducir un número entero");
+                sc.nextLine();
             }
         } while (opcionInvalida);
         sc.nextLine(); //limpiamos scanner
         return opcion;
     }
 
-    static int menuConsulta() {
-        int opcion;
-        boolean opcionInvalida;
+    static int menuConsulta() { //ver menu()
+        int opcion = 0;
+        boolean opcionInvalida = true;
         do {
             System.out.println("\n¿Según qué campo quiere consultar?");
             System.out.println("\t1. ID de empleado");
             System.out.println("\t2. Listar todos los empleados");
-            opcion = sc.nextInt();
-            opcionInvalida = opcion < 1 || opcion > 2;
-            if (opcionInvalida) {
-                System.out.println("Error, opción introducida no válida\n");
+            try {
+                opcion = sc.nextInt();
+                opcionInvalida = opcion < 1 || opcion > 2;
+                if (opcionInvalida) {
+                    System.out.println("Error, opción introducida no válida\n");
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Error, debe introducir un número entero");
+                sc.nextLine();
             }
         } while (opcionInvalida);
         sc.nextLine(); //limpiamos scanner
@@ -119,25 +129,19 @@ public class GestorEmpleadosDOM {
 
         sc = new Scanner(System.in);
 
-        //TODO: crear módulo que devuelva un objeto empleado
         //pedimos los datos y los almacenamos en el objeto Empleado creado
-        System.out.println("Introduzca nombre empleado");
-        String nombre = sc.nextLine();
-        System.out.println("Introduzca apellidos empleado");
-        String apellidos = sc.nextLine();
-        System.out.println("Introduzca departamento empleado");
-        String departamento = sc.nextLine();
+        Empleado em = Empleado.pedirEmpleado(id);
         
         //creamos el elemento empleado
         Element empleado = document.createElement("empleado");
         //lo añadimos al elemento raíz del documento (getDocumentElement)
         document.getDocumentElement().appendChild(empleado);
         
-        // TODO: poner ID como atributo
-        crearElemento("id",id+"",empleado);
-        crearElemento("nombre",nombre,empleado);
-        crearElemento("apellidos",apellidos,empleado);
-        crearElemento("departamento",departamento,empleado);
+        // añadimos el id atributo y creamos los elementos hijos del elemento empleado
+        empleado.setAttribute("id", id+"");
+        crearElemento("nombre",em.nombre,empleado);
+        crearElemento("apellidos",em.apellidos,empleado);
+        crearElemento("departamento",em.departamento,empleado);
         
         
         //generamos el documento XML
@@ -183,7 +187,7 @@ public class GestorEmpleadosDOM {
             // comprobamos que el nodo empleado es un elemento
             if (empNode.getNodeType()==Node.ELEMENT_NODE) {
                 Element empElem = (Element) empNode; //lo convertimos a Element para poder trabajar con él
-                int empId = Integer.parseInt(getNodo("id", empElem)); // obtenemos el id
+                int empId = Integer.parseInt(empElem.getAttribute("id")); // obtenemos el id
                 if(id==empId) { // comparamos con el id a borrar
                     borrarNodo(empNode); //si coincide lo quitamos de su padre
                     idEncontrado = true;
@@ -240,15 +244,10 @@ public class GestorEmpleadosDOM {
             // comprobamos que el nodo empleado es un elemento
             if (empNode.getNodeType()==Node.ELEMENT_NODE) {
                 Element empElem = (Element) empNode; //lo convertimos a Element para poder trabajar con él
-                int empId = Integer.parseInt(getNodo("id", empElem)); // obtenemos el id
-                if(id==empId) { // comparamos con el id a modificar
-                    sc = new Scanner(System.in);
-                    System.out.println("Introduzca nuevo nombre empleado");
-                    String nombre = sc.nextLine();
-                    System.out.println("Introduzca nuevos apellidos empleado");
-                    String apellidos = sc.nextLine();
-                    System.out.println("Introduzca nuevo departamento empleado");
-                    String departamento = sc.nextLine();
+                int empId = Integer.parseInt(empElem.getAttribute("id")); // obtenemos el id
+                if(id==empId && !idEncontrado) { // comparamos con el id a modificar
+                    //pedimos los datos de un nuevo empleado y lo guardamos en una variable Empleado
+                    Empleado em = Empleado.pedirEmpleado(id);
                     
                     //borramos el nodo antiguo
                     borrarNodo(empNode);
@@ -257,10 +256,10 @@ public class GestorEmpleadosDOM {
                     Element empleado = document.createElement("empleado");
                     document.getDocumentElement().appendChild(empleado);
                     
-                    crearElemento("id", id+"", empleado);
-                    crearElemento("nombre", nombre, empleado);
-                    crearElemento("apellidos", apellidos, empleado);
-                    crearElemento("departamento", departamento, empleado);
+                    empleado.setAttribute("id", id+"");
+                    crearElemento("nombre", em.nombre, empleado);
+                    crearElemento("apellidos", em.apellidos, empleado);
+                    crearElemento("departamento", em.departamento, empleado);
                     
                     idEncontrado = true;
                 }
@@ -317,7 +316,7 @@ public class GestorEmpleadosDOM {
                     // comprobamos que el nodo empleado es un elemento
                     if (empNode.getNodeType()==Node.ELEMENT_NODE) {
                         Element empElem = (Element) empNode; //lo convertimos a Element para poder trabajar con él
-                        int empId = Integer.parseInt(getNodo("id", empElem)); // obtenemos el id
+                        int empId = Integer.parseInt(empElem.getAttribute("id")); // obtenemos el id
                         if(id==empId) { // comparamos con el id a consultar
                             mostrarEmpleadoElem(empElem); //si coincide lo mostramos
                             idEncontrado = true;
@@ -353,7 +352,7 @@ public class GestorEmpleadosDOM {
             Node emp = empleados.item(i); //guardamos el nodo sobre el que iteramos
             if (emp.getNodeType() == Node.ELEMENT_NODE) { //comprobamos que el nodo es un elemento
                 Element empElem = (Element) emp; //si lo es podemos hacer el casting a Element sin complicaciones
-                int empId = Integer.parseInt(getNodo("id",empElem));
+                int empId = Integer.parseInt(empElem.getAttribute("id"));
                 if(empId>id) id = empId;
             }
         }
@@ -401,7 +400,7 @@ public class GestorEmpleadosDOM {
     }
     
     static void mostrarEmpleadoElem(Element empleado) {
-        System.out.println("Empleado #"+getNodo("id",empleado));
+        System.out.println("Empleado #"+empleado.getAttribute("id"));
         System.out.println("\tNombre: "+getNodo("nombre",empleado));
         System.out.println("\tApellidos: "+getNodo("apellidos",empleado));
         System.out.println("\tDepartamento: "+getNodo("departamento",empleado));

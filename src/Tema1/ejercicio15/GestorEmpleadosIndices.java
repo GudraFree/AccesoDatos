@@ -15,8 +15,6 @@ TODO: índice por nombre debe tener key nombre y value arraylist de posiciones
 */
 package Tema1.ejercicio15;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -26,6 +24,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Scanner;
@@ -46,7 +45,7 @@ public class GestorEmpleadosIndices {
     static Scanner sc;
     public static void main(String[] args) {
         gestorEmpleados = new File("gestorEmpleados");
-        ficheroEmpleados=new File(gestorEmpleados,"empleados.dat");
+        ficheroEmpleados=new File(gestorEmpleados,"empleadosRAF.dat");
         indexId = new File(gestorEmpleados,"indexId");
         mapId = new TreeMap();
         indexNombre = new File(gestorEmpleados,"indexNombre");
@@ -76,8 +75,8 @@ public class GestorEmpleadosIndices {
     
     static int menu() {
         sc = new Scanner(System.in);
-        int opcion;
-        boolean opcionInvalida;
+        int opcion = 0; //valor 0 por defecto
+        boolean opcionInvalida = true; // valor true por defecto, necesario para segunda iteración bucle si salta excepción
         do {
             System.out.println("\nGestor de empleados con índices. Por favor introduzca una opción");
             System.out.println("\t1. Alta");
@@ -86,25 +85,39 @@ public class GestorEmpleadosIndices {
             System.out.println("\t4. Consulta");
             System.out.println("\t5. Reconstruir fichero");
             System.out.println("\t6. Salir");
-            opcion = sc.nextInt();
-            opcionInvalida = opcion<1 || opcion>6;
-            if(opcionInvalida) System.out.println("Error, opción introducida no válida\n");
+            try {
+                opcion = sc.nextInt();
+                opcionInvalida = opcion < 1 || opcion > 6;
+                if (opcionInvalida) {
+                    System.out.println("Error, opción introducida no válida\n");
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Error, debe introducir un número entero");
+                sc.nextLine();
+            }
         } while (opcionInvalida);
         sc.nextLine(); //limpiamos scanner
         return opcion;
     }
     
     static int menuConsulta() {
-        int opcion;
-        boolean opcionInvalida;
+        int opcion = 0; //valor 0 por defecto
+        boolean opcionInvalida = true; // valor true por defecto, necesario para segunda iteración bucle si salta excepción
         do {
             System.out.println("\n¿Según qué campo quiere consultar?");
             System.out.println("\t1. ID de empleado");
             System.out.println("\t2. Apellidos, Nombre");
             System.out.println("\t3. Listar todos los empleados");
-            opcion = sc.nextInt();
-            opcionInvalida = opcion<1 || opcion>3;
-            if(opcionInvalida) System.out.println("Error, opción introducida no válida\n");
+            try {
+                opcion = sc.nextInt();
+                opcionInvalida = opcion < 1 || opcion > 3;
+                if (opcionInvalida) {
+                    System.out.println("Error, opción introducida no válida\n");
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Error, debe introducir un número entero");
+                sc.nextLine();
+            }
         } while (opcionInvalida);
         sc.nextLine(); //limpiamos scanner
         return opcion;

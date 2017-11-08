@@ -3,41 +3,32 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Tema1.ejercicio19;
+package Tema1.ejercicio17;
 
 import java.util.Scanner;
 
 /**
  *
  * @author Perig
- * 
- * Empleado en xml
- * <empleado id="id">
- *      <nombre>Nombre</nombre>
- *      <apell>Apellidos</apell>
- *      <depart>Departamento</depart>
- * </empleado>
  */
 public class Empleado {
-    ID id;
+    int id;
     String nombre;
     String apellidos;
     String departamento;
-    
+
     public Empleado() {
     }
 
     public Empleado(int id, String nombre, String apellidos, String departamento) {
-        this.id = new ID(id);
+        this.id = id;
         this.nombre = nombre;
         this.apellidos = apellidos;
         this.departamento = departamento;
     }
-
-    
     
     public void mostrarEmpleado() {
-        System.out.println("\nEmpleado #"+id.getId()+"\n\tNombre: "+apellidos+", "+nombre+"\n\tDepartamento: "+departamento);
+        System.out.println("\nEmpleado #"+id+"\n\tNombre: "+apellidos+", "+nombre+"\n\tDepartamento: "+departamento);
     }
     
     public static Empleado pedirEmpleado(int id) {
@@ -60,7 +51,7 @@ public class Empleado {
     }
 
     public int getId() {
-        return id.getId();
+        return id;
     }
 
     public String getNombre() {
@@ -76,12 +67,11 @@ public class Empleado {
     }
 
     public void setId(int id) {
-        this.id = new ID(id);
+        this.id = id;
     }
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
-    
     
 }

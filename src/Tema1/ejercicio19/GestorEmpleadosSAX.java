@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.Attributes;
@@ -21,15 +22,13 @@ import org.xml.sax.helpers.DefaultHandler;
  * @author Perig
  */
 public class GestorEmpleadosSAX {
-
-    static final byte ACTIVO = 1, BORRADO = -1;
     static File ficheroEmpleados, gestorEmpleados;
     static Scanner sc;
     static Empleados listaEmp;
 
     public static void main(String[] args) {
         gestorEmpleados = new File("gestorEmpleados");
-        ficheroEmpleados = new File(gestorEmpleados, "empleados.xml");
+        ficheroEmpleados = new File(gestorEmpleados, "empleadosSAX.xml");
         int opcion;
         while ((opcion = menu()) != 5) {
             switch (opcion) {
@@ -52,36 +51,46 @@ public class GestorEmpleadosSAX {
 
     static int menu() {
         sc = new Scanner(System.in);
-        int opcion;
-        boolean opcionInvalida;
+        int opcion = 0; //valor 0 por defecto
+        boolean opcionInvalida = true; // valor true por defecto, necesario para segunda iteración bucle si salta excepción
         do {
-            System.out.println("\nGestor de empleados con DOM. Por favor introduzca una opción");
+            System.out.println("\nGestor de empleados con SAX. Por favor introduzca una opción");
             System.out.println("\t1. Alta");
             System.out.println("\t2. Baja");
             System.out.println("\t3. Modificación");
             System.out.println("\t4. Consulta");
             System.out.println("\t5. Salir");
-            opcion = sc.nextInt();
-            opcionInvalida = opcion < 1 || opcion > 5;
-            if (opcionInvalida) {
-                System.out.println("Error, opción introducida no válida\n");
+            try {
+                opcion = sc.nextInt();
+                opcionInvalida = opcion < 1 || opcion > 5;
+                if (opcionInvalida) {
+                    System.out.println("Error, opción introducida no válida\n");
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Error, debe introducir un número entero");
+                sc.nextLine();
             }
         } while (opcionInvalida);
         sc.nextLine(); //limpiamos scanner
         return opcion;
     }
 
-    static int menuConsulta() {
-        int opcion;
-        boolean opcionInvalida;
+    static int menuConsulta() { //ver menu()
+        int opcion = 0;
+        boolean opcionInvalida = true;
         do {
             System.out.println("\n¿Según qué campo quiere consultar?");
             System.out.println("\t1. ID de empleado");
             System.out.println("\t2. Listar todos los empleados");
-            opcion = sc.nextInt();
-            opcionInvalida = opcion < 1 || opcion > 2;
-            if (opcionInvalida) {
-                System.out.println("Error, opción introducida no válida\n");
+            try {
+                opcion = sc.nextInt();
+                opcionInvalida = opcion < 1 || opcion > 2;
+                if (opcionInvalida) {
+                    System.out.println("Error, opción introducida no válida\n");
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Error, debe introducir un número entero");
+                sc.nextLine();
             }
         } while (opcionInvalida);
         sc.nextLine(); //limpiamos scanner
@@ -89,31 +98,11 @@ public class GestorEmpleadosSAX {
     }
 
     static void alta() {
-        int id = 0;
-        //creamos los ficheros si estos no existen
-        try { 
-            if(!gestorEmpleados.isDirectory()) gestorEmpleados.mkdir();
-            if(!ficheroEmpleados.exists()) {
-                ficheroEmpleados.createNewFile();
-                listaEmp = new Empleados();
-            }
-            else {
-                leerXML();
-                id = listaEmp.idMasAlto();
-            }
-        } catch (IOException e) {
-            System.out.println("Error en la creación de ficheros");
-        }
+        // comprobamos que los ficheros existen y almacenamos el último ID obtenido
+        int id = comprobacionInicialFicheros();
         
         //creamos el objeto empleado y pedimos sus datos
-        Empleado nuevoEmpleado = new Empleado();
-        nuevoEmpleado.id = new ID(id);
-        System.out.println("Introduzca nombre empleado");
-        nuevoEmpleado.nombre=sc.nextLine();
-        System.out.println("Introduzca apellidos empleado");
-        nuevoEmpleado.apellidos=sc.nextLine();
-        System.out.println("Introduzca departamento empleado");
-        nuevoEmpleado.departamento=sc.nextLine();
+        Empleado nuevoEmpleado = Empleado.pedirEmpleado(id);
         
         //añadimos el nuevo empleado a la lista y escribimos el fichero XML
         listaEmp.add(nuevoEmpleado);
@@ -164,15 +153,13 @@ public class GestorEmpleadosSAX {
         Empleado empAModificar = listaEmp.getEmpleado(idABuscar);
         //si existe, lo borramos y sobreescribimos el XML. Si no, notificamos al usuario que la operación no se ha realizado
         if(empAModificar!=null) {
-            System.out.println("Introduzca nombre empleado");
-            empAModificar.nombre=sc.nextLine();
-            System.out.println("Introduzca apellidos empleado");
-            empAModificar.apellidos=sc.nextLine();
-            System.out.println("Introduzca departamento empleado");
-            empAModificar.departamento=sc.nextLine();
-            
+            Empleado emp = Empleado.pedirEmpleado(idABuscar);
+            empAModificar.nombre=emp.nombre;
+            empAModificar.apellidos=emp.apellidos;
+            empAModificar.departamento=emp.departamento;
+
             escribirEnXML();
-            System.out.println("Baja realizada con éxito");
+            System.out.println("Modificación realizada con éxito");
         }
         else System.out.println("Error, ID no encontrado");
     } //fin modif
@@ -193,6 +180,26 @@ public class GestorEmpleadosSAX {
                 listaEmp.mostrarEmpleados();
                 break;
         }
+    }
+    
+    static int comprobacionInicialFicheros() { //devuelve el último ID
+        int id = 0;
+        //creamos los ficheros si estos no existen
+        try { 
+            if(!gestorEmpleados.isDirectory()) gestorEmpleados.mkdir();
+            if(!ficheroEmpleados.exists()) {
+                ficheroEmpleados.createNewFile();
+                listaEmp = new Empleados();
+            }
+            else {
+                leerXML();
+                id = listaEmp.idMasAlto();
+            }
+        } catch (IOException e) {
+            System.out.println("Error en la creación de ficheros");
+        }
+        return id;
+        
     }
     
     static void escribirEnXML() {
