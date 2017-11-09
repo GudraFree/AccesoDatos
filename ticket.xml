@@ -1,0 +1,12 @@
+<productos>
+	<pasta codigo="28">
+		<marca>Gallo</marca>
+		<cantidad>1</cantidad>
+		<precio>1.2</precio>
+	</pasta>
+	<melon codigo="13">
+		<marca>Fruco</marca>
+		<cantidad>2</cantidad>
+		<precio>0.9</precio>
+	</melon>
+</productos>
