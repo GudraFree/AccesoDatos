@@ -74,7 +74,7 @@ public class GestionEmpleados {
 
     //static String url="jdbc:sqlite:/home/pub/miguelb/ad/tema2/dbms/sqlite3/ejemplo.db"; //Linux
     //static String url="jdbc:sqlite:D:/sqlite/BD/ejemplo.db";                            //Windows
-    static String url = "jdbc:sqlite:C:\\Users\\Perig\\Downloads\\sqlite-tools-win32-x86-3210000\\sqlite-tools-win32-x86-3210000\\ejemplo1.db";
+    static String url = "jdbc:sqlite:ejemplo1.db";
 
     //----jdbcOdbc
     //static String Access_jdbcDriver="sun.jdbc.odbc.JdbcOdbcDriver";
