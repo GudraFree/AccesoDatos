@@ -8,6 +8,7 @@ package Tema2.ejercicio07;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -24,6 +25,8 @@ public class GestorEmpleadosPreparedStatements {
     
     public static void main(String[] args) {
         GestorEmpleadosPreparedStatements main = new GestorEmpleadosPreparedStatements();
+        
+        System.out.println("Programa terminado");
     }
 
     public GestorEmpleadosPreparedStatements() {
@@ -79,6 +82,7 @@ public class GestorEmpleadosPreparedStatements {
             connection.close();
         } catch (SQLException e) {
             System.out.println("He petao por el SQL");
+            e.printStackTrace();
         }
     }
     
@@ -117,29 +121,150 @@ public class GestorEmpleadosPreparedStatements {
             }
         } while (opcionInvalida);
         sc.nextLine(); //limpiamos scanner
-        sc.close();
         return opcion;
     }
     
     private void altaDep() throws SQLException {
+        // pedimos datos
+        sc = new Scanner(System.in);
+        System.out.println("Introduzca nombre departamento");
+        String dnombre = sc.nextLine().toUpperCase();
+        System.out.println("Introduzca localización departamento");
+        String loc = sc.nextLine().toUpperCase();
+        
+        //comprobamos que no exista el departamento introducido para continuar con la operación
+        PreparedStatement compruebaPS = connection.prepareStatement("select * from departamentos where dnombre=? and loc=?");
+        compruebaPS.setString(1, dnombre);
+        compruebaPS.setString(2, loc);
+        ResultSet compruebaDep = compruebaPS.executeQuery();
+        if (compruebaDep.next()) {
+            System.out.println("Error, el departamento "+dnombre+" ya existe en "+loc);
+            return;
+        }
+        compruebaDep.close();
+        
+        //obtenemos el último ID de departamento
+        ResultSet resId = connection.createStatement().executeQuery("select dept_no from departamentos order by dept_no desc");
+        int lastId = 0;
+        if (resId.next()) lastId = resId.getInt(1);
+        resId.close();
+        
+        // creamos el statement e introducimos los datos
         PreparedStatement ps = connection.prepareStatement("insert into departamentos values (?, ?, ?)");
+        
+        ps.setInt(1, (lastId+10));
+        ps.setString(2, dnombre);
+        ps.setString(3, loc);
+        
+        //ejecutamos el insert
+        ps.execute();
+        ps.close();
+        
+        System.out.println("Alta realizada con éxito");
     }
     
     private void bajaDep() throws SQLException {
+        // pedimos datos
+        sc = new Scanner(System.in);
+        System.out.println("Introduzca nombre departamento");
+        String dnombre = sc.nextLine().toUpperCase();
+        System.out.println("Introduzca localización departamento");
+        String loc = sc.nextLine().toUpperCase();
         
+        //comprobamos que exista el departamento introducido para continuar con la operación
+        PreparedStatement compruebaPS = connection.prepareStatement("select * from departamentos where dnombre=? and loc=?");
+        compruebaPS.setString(1, dnombre);
+        compruebaPS.setString(2, loc);
+        ResultSet compruebaDep = compruebaPS.executeQuery();
+        if (!compruebaDep.next()) {
+            System.out.println("Error, el departamento "+dnombre+" no existe en "+loc);
+            return;
+        }
+        compruebaDep.close();
+        
+        // creamos el statement e introducimos los datos
+        PreparedStatement ps = connection.prepareStatement("delete from departamentos where dnombre=? and loc=?");
+        
+        ps.setString(1, dnombre);
+        ps.setString(2, loc);
+        
+        //ejecutamos el delete
+        ps.execute();
+        ps.close();
+        
+        System.out.println("Baja realizada con éxito");
     }
     
     private void modifDep() throws SQLException {
+        // pedimos datos
+        sc = new Scanner(System.in);
+        System.out.println("Introduzca nombre departamento");
+        String dnombre = sc.nextLine().toUpperCase();
+        System.out.println("Introduzca localización departamento");
+        String loc = sc.nextLine().toUpperCase();
         
+        //comprobamos que exista el departamento introducido para continuar con la operación
+        PreparedStatement compruebaPS = connection.prepareStatement("select * from departamentos where dnombre=? and loc=?");
+        compruebaPS.setString(1, dnombre);
+        compruebaPS.setString(2, loc);
+        ResultSet compruebaDep = compruebaPS.executeQuery();
+        if (!compruebaDep.next()) {
+            System.out.println("Error, el departamento "+dnombre+" no existe en "+loc);
+            return;
+        }
+        compruebaDep.close();
+        
+        // pedimos nuevos datos
+        System.out.println("Introduzca nuevo nombre departamento");
+        String dnombreN = sc.nextLine().toUpperCase();
+        System.out.println("Introduzca nueva localización departamento");
+        String locN = sc.nextLine().toUpperCase();
+        
+        // creamos el statement e introducimos los datos
+        PreparedStatement ps = connection.prepareStatement("update departamentos set dnombre=?, loc=? where dnombre=? and loc=?");
+        
+        ps.setString(1, dnombreN);
+        ps.setString(2, locN);
+        ps.setString(3, dnombre);
+        ps.setString(4, loc);
+        
+        //ejecutamos el update
+        ps.execute();
+        ps.close();
     }
     
     private void consultaDep1() throws SQLException {
-        
+        String query = "select dnombre, loc from departamentos";
+        ResultSet rs = connection.createStatement().executeQuery(query);
+        while(rs.next()) {
+            System.out.println("Departamento "+rs.getString(1)+", "+rs.getString(2));
+        }
+        rs.close();
     }
+    
     private void consultaDep2() throws SQLException {
+        sc = new Scanner(System.in);
+        System.out.println("Introduzca nombre departamento:");
+        String dnombre = sc.nextLine().toUpperCase();
+        String query = "select dnombre, loc from departamentos where dnombre='"+dnombre+"'";
+        ResultSet rs = connection.createStatement().executeQuery(query);
+        while(rs.next()) {
+            System.out.println("Departamento "+rs.getString(1)+", "+rs.getString(2));
+        }
+        rs.close();
         
     }
+    
     private void consultaDep3() throws SQLException {
+        sc = new Scanner(System.in);
+        System.out.println("Introduzca localización departamento:");
+        String loc = sc.nextLine().toUpperCase();
+        String query = "select dnombre, loc from departamentos where loc='"+loc+"'";
+        ResultSet rs = connection.createStatement().executeQuery(query);
+        while(rs.next()) {
+            System.out.println("Departamento "+rs.getString(1)+", "+rs.getString(2));
+        }
+        rs.close();
         
     }
     
