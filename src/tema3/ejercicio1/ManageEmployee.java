@@ -5,9 +5,13 @@
  */
 package tema3.ejercicio1;
 
+import java.util.HashSet;
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 import org.hibernate.HibernateException;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import tema3.ejercicio1.util.HibernateUtil;
@@ -24,25 +28,26 @@ public class ManageEmployee {
         while ((opcion = me.menu()) != 7) {
             switch (opcion) {
                 case 1: // Alta
-                    altaDep();
+                    me.altaDep();
                     break;
                 case 2: // Baja
-                    bajaDep();
+                    me.bajaDep();
                     break;
                 case 3: // Modificación
-                    modifDep();
+                    me.modifDep();
                     break;
                 case 4: // Alta
-                    altaEmp();
+                    me.altaEmp();
                     break;
                 case 5: // Baja
-                    bajaEmp();
+//                    me.bajaEmp();
                     break;
                 case 6: // Modificación
-                    modifEmp();
+//                    me.modifEmp();
                     break;
             }
         }
+        System.exit(0);
     }
     
     private int menu() {
@@ -83,8 +88,9 @@ public class ManageEmployee {
         sc = new Scanner(System.in);
         System.out.println("Introduzca código departamento");
         codigo = sc.nextInt();
+        sc.nextLine();
         System.out.println("Introduzca nombre departamento");
-        nombre = sc.nextLine().toUpperCase();
+        nombre = sc.nextLine();
 
         try{
             tx = session.beginTransaction();
@@ -101,16 +107,147 @@ public class ManageEmployee {
 
     }
     
-    public void altaEmp(){
+    public void bajaDep(){
         Session session = HibernateUtil.getSessionFactory().openSession();
         Transaction tx = null;
-        String nombre=""; String apellido=""; float salario=0;
+        int codigo=0;
+        // pedimos datos
+        sc = new Scanner(System.in);
+        System.out.println("Introduzca código departamento");
+        codigo = sc.nextInt();
+        sc.nextLine();
 
         try{
             tx = session.beginTransaction();
-            Empleado dep = new Empleado(nombre, apellido, salario);
+            Departamento dep = (Departamento)session.get(Departamento.class, codigo);
             
-            session.save(dep);
+            if(dep!=null) session.delete(dep);
+            tx.commit();
+        }catch (HibernateException e) { 
+            if (tx!=null) tx.rollback();
+                e.printStackTrace();
+        }finally {
+            session.close();
+        } 
+
+    }
+    
+    public void modifDep(){
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = null;
+        int codigo=0; String nombre="";
+        // pedimos datos
+        sc = new Scanner(System.in);
+        System.out.println("Introduzca código departamento");
+        codigo = sc.nextInt();
+        sc.nextLine();
+        System.out.println("Introduzca nuevo nombre departamento");
+        nombre = sc.nextLine();
+
+        try{
+            tx = session.beginTransaction();
+            Departamento dep = (Departamento)session.get(Departamento.class, codigo);
+            if(dep!=null) {
+                dep.setDnombre(nombre);
+                session.update(dep);
+            }
+            tx.commit();
+        }catch (HibernateException e) { 
+            if (tx!=null) tx.rollback();
+                e.printStackTrace();
+        }finally {
+            session.close();
+        } 
+
+    }
+    
+    public void altaEmp(){
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = null;
+        String nombre=""; String apellido=""; float salario=0; int idDep=0;
+        // pedimos datos
+        sc = new Scanner(System.in);
+        System.out.println("Introduzca nombre empleado");
+        nombre = sc.nextLine();
+        System.out.println("Introduzca apellido empleado");
+        apellido = sc.nextLine();
+        System.out.println("Introduzca salario empleado");
+        salario = sc.nextFloat();
+        sc.nextLine();
+        System.out.println("Introduzca departamento empleado (código)");
+        idDep = sc.nextInt();
+
+        try{
+            tx = session.beginTransaction();
+            Empleado emp = new Empleado(nombre, apellido, salario);
+            
+            Departamento dep = (Departamento)session.get(Departamento.class, idDep);
+            Set empleados = dep.getEmpleados();
+            if(empleados==null) empleados = new HashSet();
+            empleados.add(emp);
+            dep.setEmpleados(empleados);
+            
+            session.save(emp);
+            tx.commit();
+        }catch (HibernateException e) { 
+            if (tx!=null) tx.rollback();
+                e.printStackTrace();
+        }finally {
+            session.close();
+        } 
+
+    }
+    
+    public void bajaEmp(){
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = null;
+        int codigo=0; String nombre="", apellido="";
+        // pedimos datos
+        sc = new Scanner(System.in);
+        System.out.println("Introduzca nombre empleado");
+        nombre = sc.nextLine();
+        System.out.println("Introduzca apellido empleado");
+        apellido = sc.nextLine();
+
+        try{
+            tx = session.beginTransaction();
+            
+            Query query = session.createQuery("from Empleado where nombre = :nombre and apellido = :apellido ");
+            query.setParameter("nombre", nombre);
+            query.setParameter("code", apellido);
+            List list = query.list();
+            Empleado emp = (Empleado)list.get(0);
+            
+            if(emp!=null) session.delete(emp);
+            tx.commit();
+        }catch (HibernateException e) { 
+            if (tx!=null) tx.rollback();
+                e.printStackTrace();
+        }finally {
+            session.close();
+        } 
+
+    }
+    
+    public void modifEmp(){
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = null;
+        int codigo=0; String nombre="";
+        // pedimos datos
+        sc = new Scanner(System.in);
+        System.out.println("Introduzca código departamento");
+        codigo = sc.nextInt();
+        sc.nextLine();
+        System.out.println("Introduzca nuevo nombre departamento");
+        nombre = sc.nextLine();
+
+        try{
+            tx = session.beginTransaction();
+            Departamento dep = (Departamento)session.get(Departamento.class, codigo);
+            if(dep!=null) {
+                dep.setDnombre(nombre);
+                session.update(dep);
+            }
             tx.commit();
         }catch (HibernateException e) { 
             if (tx!=null) tx.rollback();
