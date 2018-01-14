@@ -25,7 +25,7 @@ public class ManageEmployee {
     public static void main(String[] args) {
         ManageEmployee me = new ManageEmployee();
         int opcion;
-        while ((opcion = me.menu()) != 7) {
+        while ((opcion = me.menu()) != 8) {
             switch (opcion) {
                 case 1: // Alta
                     me.altaDep();
@@ -40,10 +40,13 @@ public class ManageEmployee {
                     me.altaEmp();
                     break;
                 case 5: // Baja
-//                    me.bajaEmp();
+                    me.bajaEmp();
                     break;
                 case 6: // Modificación
 //                    me.modifEmp();
+                    break;
+                case 7: //listado
+                    me.listar();
                     break;
             }
         }
@@ -64,10 +67,11 @@ public class ManageEmployee {
             System.out.println("\t4. Alta");
             System.out.println("\t5. Baja");
             System.out.println("\t6. Actualización");
-            System.out.println("7. Salir");
+            System.out.println("7. Listar todos los departamentos y sus empleados");
+            System.out.println("8. Salir");
             try {
                 opcion = sc.nextInt();
-                opcionInvalida = opcion < 1 || opcion > 7;
+                opcionInvalida = opcion < 1 || opcion > 8;
                 if (opcionInvalida) {
                     System.out.println("Error, opción introducida no válida\n");
                 }
@@ -214,7 +218,7 @@ public class ManageEmployee {
             
             Query query = session.createQuery("from Empleado where nombre = :nombre and apellido = :apellido ");
             query.setParameter("nombre", nombre);
-            query.setParameter("code", apellido);
+            query.setParameter("apellido", apellido);
             List list = query.list();
             Empleado emp = (Empleado)list.get(0);
             
@@ -234,7 +238,7 @@ public class ManageEmployee {
     public void modifEmp(){
         Session session = HibernateUtil.getSessionFactory().openSession();
         Transaction tx = null;
-        String nombre="", apellido="";
+        String nombre="", apellido=""; float salario = 0; int idDep = 0;
         // pedimos datos
         sc = new Scanner(System.in);
         System.out.println("Introduzca nombre empleado");
@@ -249,6 +253,24 @@ public class ManageEmployee {
             query.setParameter("code", apellido);
             List list = query.list();
             Empleado emp = (Empleado)list.get(0);
+            if(emp!= null) {
+                System.out.println("Introduzca nombre empleado");
+                nombre = sc.nextLine();
+                System.out.println("Introduzca apellido empleado");
+                apellido = sc.nextLine();
+                System.out.println("Introduzca salario empleado");
+                salario = sc.nextFloat();
+                sc.nextLine();
+                System.out.println("Introduzca departamento empleado (código)");
+                idDep = sc.nextInt();
+                sc.nextLine();
+                
+                emp.setNombre(nombre);
+                emp.setApellido(apellido);
+                emp.setSalario(salario);
+                // TODO: actualizar departamento
+                session.update(emp);
+            }
             tx.commit();
         }catch (HibernateException e) { 
             if (tx!=null) tx.rollback();
@@ -257,5 +279,29 @@ public class ManageEmployee {
             session.close();
         } 
 
+    }
+    
+    public void listar() {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+//        Transaction tx = null;
+        
+        try {
+//            tx = session.beginTransaction();
+            Query q = session.createQuery("from Departamento");
+            List departamentos = q.list();
+            for (Object d : departamentos) {
+                Departamento dep = (Departamento) d;
+                System.out.println(dep.getId()+". "+dep.getDnombre());
+                Set empleados = dep.getEmpleados();
+                for(Object e: empleados) {
+                    Empleado emp = (Empleado) e;
+                    System.out.println(emp.getNombre()+" "+emp.getApellido()+", salario de "+emp.getSalario()+"€");
+                }
+            }
+        } catch (HibernateException e) {
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
     }
 }
