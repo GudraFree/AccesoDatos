@@ -201,7 +201,7 @@ public class ManageEmployee {
     public void bajaEmp(){
         Session session = HibernateUtil.getSessionFactory().openSession();
         Transaction tx = null;
-        int codigo=0; String nombre="", apellido="";
+        String nombre="", apellido="";
         // pedimos datos
         sc = new Scanner(System.in);
         System.out.println("Introduzca nombre empleado");
@@ -218,7 +218,9 @@ public class ManageEmployee {
             List list = query.list();
             Empleado emp = (Empleado)list.get(0);
             
-            if(emp!=null) session.delete(emp);
+            if(emp!=null) {
+                session.delete(emp);
+            }
             tx.commit();
         }catch (HibernateException e) { 
             if (tx!=null) tx.rollback();
@@ -232,22 +234,21 @@ public class ManageEmployee {
     public void modifEmp(){
         Session session = HibernateUtil.getSessionFactory().openSession();
         Transaction tx = null;
-        int codigo=0; String nombre="";
+        String nombre="", apellido="";
         // pedimos datos
         sc = new Scanner(System.in);
-        System.out.println("Introduzca código departamento");
-        codigo = sc.nextInt();
-        sc.nextLine();
-        System.out.println("Introduzca nuevo nombre departamento");
+        System.out.println("Introduzca nombre empleado");
         nombre = sc.nextLine();
+        System.out.println("Introduzca apellido empleado");
+        apellido = sc.nextLine();
 
         try{
             tx = session.beginTransaction();
-            Departamento dep = (Departamento)session.get(Departamento.class, codigo);
-            if(dep!=null) {
-                dep.setDnombre(nombre);
-                session.update(dep);
-            }
+            Query query = session.createQuery("from Empleado where nombre = :nombre and apellido = :apellido ");
+            query.setParameter("nombre", nombre);
+            query.setParameter("code", apellido);
+            List list = query.list();
+            Empleado emp = (Empleado)list.get(0);
             tx.commit();
         }catch (HibernateException e) { 
             if (tx!=null) tx.rollback();

@@ -11,10 +11,14 @@
         <property name="dnombre" type="string">
             <column name="dnombre" length="20" not-null="true" unique="true" />
         </property>
-        <set name="empleados" table="empleado" inverse="true" lazy="true" fetch="select">
+<!--        <set name="empleados" table="empleado" inverse="true" lazy="true" fetch="select">
             <key>
                 <column name="dep" />
             </key>
+            <one-to-many class="tema3.ejercicio1.Empleado" />
+        </set>-->
+        <set name="empleados" cascade="all">
+            <key column="dep" />
             <one-to-many class="tema3.ejercicio1.Empleado" />
         </set>
     </class>
