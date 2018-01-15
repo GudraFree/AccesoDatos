@@ -11,6 +11,7 @@
         <property name="dnombre" type="string">
             <column name="dnombre" length="20" not-null="true" unique="true" />
         </property>
+        <many-to-one name="direccion" column="direccion" class="tema3.ejercicio1.Direccion" not-null="true" unique="true"/>
 <!--        <set name="empleados" table="empleado" inverse="true" lazy="true" fetch="select">
             <key>
                 <column name="dep" />

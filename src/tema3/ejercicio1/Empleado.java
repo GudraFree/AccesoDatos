@@ -11,9 +11,11 @@ public class Empleado  implements java.io.Serializable {
 
      private Integer id;
 //     private Departamento departamento;
+     private Direccion direccion;
      private String nombre;
      private String apellido;
      private Float salario;
+     
 
     public Empleado() {
     }
@@ -24,6 +26,15 @@ public class Empleado  implements java.io.Serializable {
        this.apellido = apellido;
        this.salario = salario;
     }
+
+    public Empleado(String nombre, String apellido, Float salario, Direccion direccion) {
+        this.direccion = direccion;
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.salario = salario;
+    }
+    
+    
    
     public Integer getId() {
         return this.id;
@@ -61,9 +72,14 @@ public class Empleado  implements java.io.Serializable {
         this.salario = salario;
     }
 
+    public Direccion getDireccion() {
+        return direccion;
+    }
 
-
-
+    public void setDireccion(Direccion direccion) {
+        this.direccion = direccion;
+    }
+    
 }
 
 

@@ -11,6 +11,7 @@
 <!--        <many-to-one name="departamento" class="tema3.ejercicio1.Departamento" fetch="select">
             <column name="dep" />
         </many-to-one>-->
+        <many-to-one name="direccion" column="direccion" class="tema3.ejercicio1.Direccion" not-null="true"/>
         <property name="nombre" type="string">
             <column name="nombre" length="20" />
         </property>

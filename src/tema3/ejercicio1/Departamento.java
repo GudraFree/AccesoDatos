@@ -14,6 +14,7 @@ public class Departamento  implements java.io.Serializable {
      private int id;
      private String dnombre;
      private Set empleados = new HashSet(0);
+     private Direccion direccion;
 
     public Departamento() {
     }
@@ -28,6 +29,14 @@ public class Departamento  implements java.io.Serializable {
        this.dnombre = dnombre;
        this.empleados = empleados;
     }
+
+    public Departamento(int id, String dnombre, Direccion direccion) {
+        this.id = id;
+        this.dnombre = dnombre;
+        this.direccion = direccion;
+    }
+    
+    
    
     public int getId() {
         return this.id;
@@ -36,6 +45,15 @@ public class Departamento  implements java.io.Serializable {
     public void setId(int id) {
         this.id = id;
     }
+
+    public Direccion getDireccion() {
+        return direccion;
+    }
+
+    public void setDireccion(Direccion direccion) {
+        this.direccion = direccion;
+    }
+    
     public String getDnombre() {
         return this.dnombre;
     }

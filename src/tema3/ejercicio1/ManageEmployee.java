@@ -43,7 +43,7 @@ public class ManageEmployee {
                     me.bajaEmp();
                     break;
                 case 6: // Modificación
-//                    me.modifEmp();
+                    me.modifEmp();
                     break;
                 case 7: //listado
                     me.listar();
@@ -95,10 +95,12 @@ public class ManageEmployee {
         sc.nextLine();
         System.out.println("Introduzca nombre departamento");
         nombre = sc.nextLine();
+        Integer dirId = introducirDireccion();
 
         try{
             tx = session.beginTransaction();
-            Departamento dep = new Departamento(codigo, nombre);
+            Direccion dir = (Direccion) session.get(Direccion.class, dirId);
+            Departamento dep = new Departamento(codigo, nombre, dir);
             
             session.save(dep);
             tx.commit();
@@ -180,10 +182,13 @@ public class ManageEmployee {
         sc.nextLine();
         System.out.println("Introduzca departamento empleado (código)");
         idDep = sc.nextInt();
+        sc.nextLine();
+        Integer dirId = introducirDireccion();
 
         try{
             tx = session.beginTransaction();
-            Empleado emp = new Empleado(nombre, apellido, salario);
+            Direccion dir = (Direccion) session.get(Direccion.class, dirId);
+            Empleado emp = new Empleado(nombre, apellido, salario, dir);
             
             Departamento dep = (Departamento)session.get(Departamento.class, idDep);
             Set empleados = dep.getEmpleados();
@@ -250,7 +255,7 @@ public class ManageEmployee {
             tx = session.beginTransaction();
             Query query = session.createQuery("from Empleado where nombre = :nombre and apellido = :apellido ");
             query.setParameter("nombre", nombre);
-            query.setParameter("code", apellido);
+            query.setParameter("apellido", apellido);
             List list = query.list();
             Empleado emp = (Empleado)list.get(0);
             if(emp!= null) {
@@ -269,6 +274,24 @@ public class ManageEmployee {
                 emp.setApellido(apellido);
                 emp.setSalario(salario);
                 // TODO: actualizar departamento
+                query = session.createQuery("from Departamento");
+                list = query.list();
+                for (Object l : list) {
+                    Departamento d = (Departamento) l;
+                    Set empleados = d.getEmpleados(), nuevosEmpleados = new HashSet();
+                    for(Object empleado : empleados) {
+                        Empleado e = (Empleado) empleado;
+                        if(e.getId() != emp.getId()) {
+                            nuevosEmpleados.add(e);
+                        }
+                    }
+                    if(d.getId() == idDep) {
+                        nuevosEmpleados.add(emp);
+                    }
+                    d.setEmpleados(nuevosEmpleados);
+                    session.update(d);
+                }
+                
                 session.update(emp);
             }
             tx.commit();
@@ -287,7 +310,7 @@ public class ManageEmployee {
         
         try {
 //            tx = session.beginTransaction();
-            Query q = session.createQuery("from Departamento");
+            Query q = session.createQuery("from Departamento order by id");
             List departamentos = q.list();
             for (Object d : departamentos) {
                 Departamento dep = (Departamento) d;
@@ -296,6 +319,7 @@ public class ManageEmployee {
                 for(Object e: empleados) {
                     Empleado emp = (Empleado) e;
                     System.out.println(emp.getNombre()+" "+emp.getApellido()+", salario de "+emp.getSalario()+"€");
+                    emp.getDireccion().mostrarDireccion();
                 }
             }
         } catch (HibernateException e) {
@@ -303,5 +327,44 @@ public class ManageEmployee {
         } finally {
             session.close();
         }
+    }
+    
+    private Integer introducirDireccion() {
+        System.out.println("Introduzca dirección:");
+        System.out.println("Calle:");
+        String calle = sc.nextLine();
+        System.out.println("Número:");
+        int numero = sc.nextInt();
+        sc.nextLine();
+        System.out.println("Código postal:");
+        String cpostal = sc.nextLine();
+        System.out.println("Provincia:");
+        String provincia = sc.nextLine();
+        
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = null;
+        Integer dirId = 0;
+        try{
+            tx = session.beginTransaction();
+            Query q = session.createQuery("from Direccion where calle = :calle and numero = :numero and cpostal = :cpostal and provincia = :provincia");
+            q.setParameter("calle", calle);
+            q.setParameter("numero", numero);
+            q.setParameter("cpostal", cpostal);
+            q.setParameter("provincia", provincia);
+            List l = q.list();
+            Direccion dir=null;
+            if(l.size()>0) dir = (Direccion) l.get(0);
+            if(dir==null) dir = new Direccion(calle,numero,cpostal,provincia);
+            
+            dirId = (Integer) session.save(dir);
+            tx.commit();
+        }catch (HibernateException e) { 
+            if (tx!=null) tx.rollback();
+                e.printStackTrace();
+        }finally {
+            session.close();
+        }
+        
+        return dirId;
     }
 }
