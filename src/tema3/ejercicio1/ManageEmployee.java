@@ -273,7 +273,7 @@ public class ManageEmployee {
                 emp.setNombre(nombre);
                 emp.setApellido(apellido);
                 emp.setSalario(salario);
-                // TODO: actualizar departamento
+                
                 query = session.createQuery("from Departamento");
                 list = query.list();
                 for (Object l : list) {

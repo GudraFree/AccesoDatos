@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <!--
 DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
@@ -38,18 +38,26 @@ Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 
 Contributor(s):
+
+[ NOTA ]
+TODO: implementar tabla (aquí) en base de datos
+create table informacion_financiera_departamento (
+    departamento int primary key references departamento(id),
+    presupuesto float,
+    ingresos float,
+    gastos float
+    );
 -->
-<hibernate-configuration>
-  <session-factory>
-    <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
-    <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
-    <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/hibernate</property>
-    <property name="hibernate.connection.username">root</property>
-    <!--<property name="show_sql">true</property>-->
-    <mapping resource="tema3/ejercicio1/Departamento.hbm.xml"/>
-    <mapping resource="tema3/ejercicio1/Empleado.hbm.xml"/>
-    <mapping resource="tema3/ejercicio1/Direccion.hbm.xml"/>
-    <!--<mapping/>-->
-    <mapping resource="tema3/ejercicio1/InformacionFinancieraDepartamento.hbm.xml"/>
-  </session-factory>
-</hibernate-configuration>
+<hibernate-mapping>
+    <class name="tema3.ejercicio1.InformacionFinancieraDepartamento" table="informacion_financiera_departamento">
+        <id column="departamento" name="id" type="int">
+            <generator class="foreign">
+                <param name="property">departamento</param>
+            </generator>
+        </id>
+        <one-to-one class="tema3.ejercicio1.Departamento" constrained="true" name="departamento"/>
+        <property column="presupuesto" name="presupuesto" type="java.lang.Float"/>
+        <property column="ingresos" name="ingresos" type="java.lang.Float"/>
+        <property column="gastos" name="gastos" type="java.lang.Float"/>
+    </class>
+</hibernate-mapping>

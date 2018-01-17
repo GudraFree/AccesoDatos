@@ -9,7 +9,6 @@ Menú
 
 Empleado: int id, string nombre, string apellidos, string departamento
 
-TODO: comentar, modular, estudiar
 
 */
 package Tema1.ejercicio15;
