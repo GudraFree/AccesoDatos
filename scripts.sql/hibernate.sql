@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 18-01-2018 a las 12:46:45
+-- Tiempo de generación: 18-01-2018 a las 14:04:22
 -- Versión del servidor: 10.1.28-MariaDB
 -- Versión de PHP: 7.1.11
 
@@ -31,16 +31,18 @@ SET time_zone = "+00:00";
 CREATE TABLE `departamento` (
   `id` int(11) NOT NULL,
   `dnombre` varchar(20) DEFAULT NULL,
-  `direccion` int(11) DEFAULT NULL
+  `direccion` int(11) DEFAULT NULL,
+  `jefe` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Volcado de datos para la tabla `departamento`
 --
 
-INSERT INTO `departamento` (`id`, `dnombre`, `direccion`) VALUES
-(1, 'Programacion', 1),
-(2, 'Ventas', 2);
+INSERT INTO `departamento` (`id`, `dnombre`, `direccion`, `jefe`) VALUES
+(1, 'Programacion', 1, 1),
+(2, 'Ventas', 2, NULL),
+(3, 'Marketing', 4, NULL);
 
 -- --------------------------------------------------------
 
@@ -63,7 +65,8 @@ CREATE TABLE `direccion` (
 INSERT INTO `direccion` (`id`, `calle`, `numero`, `cpostal`, `provincia`) VALUES
 (1, 'Mata', 1, '11111', 'Sevilla'),
 (2, 'Mata', 2, '11111', 'Sevilla'),
-(3, 'Ham', 30, '11111', 'Sevilla');
+(3, 'Ham', 30, '11111', 'Sevilla'),
+(4, 'Mata', 3, '11111', 'Sevilla');
 
 -- --------------------------------------------------------
 
@@ -102,6 +105,13 @@ CREATE TABLE `informacion_financiera_departamento` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
+-- Volcado de datos para la tabla `informacion_financiera_departamento`
+--
+
+INSERT INTO `informacion_financiera_departamento` (`departamento`, `presupuesto`, `ingresos`, `gastos`) VALUES
+(3, 10000, 5000, 4000);
+
+--
 -- Índices para tablas volcadas
 --
 
@@ -111,7 +121,8 @@ CREATE TABLE `informacion_financiera_departamento` (
 ALTER TABLE `departamento`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `dnombre` (`dnombre`),
-  ADD UNIQUE KEY `direccion` (`direccion`);
+  ADD UNIQUE KEY `direccion` (`direccion`),
+  ADD UNIQUE KEY `jefe` (`jefe`);
 
 --
 -- Indices de la tabla `direccion`
@@ -140,7 +151,7 @@ ALTER TABLE `informacion_financiera_departamento`
 -- AUTO_INCREMENT de la tabla `direccion`
 --
 ALTER TABLE `direccion`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `empleado`
