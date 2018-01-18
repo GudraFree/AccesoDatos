@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 14-01-2018 a las 12:39:00
+-- Tiempo de generación: 18-01-2018 a las 12:46:45
 -- Versión del servidor: 10.1.28-MariaDB
 -- Versión de PHP: 7.1.11
 
@@ -30,17 +30,40 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `departamento` (
   `id` int(11) NOT NULL,
-  `dnombre` varchar(20) NOT NULL
+  `dnombre` varchar(20) DEFAULT NULL,
+  `direccion` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Volcado de datos para la tabla `departamento`
 --
 
-INSERT INTO `departamento` (`id`, `dnombre`) VALUES
-(3, 'Desarrollo'),
-(2, 'Marketing'),
-(1, 'Ventas');
+INSERT INTO `departamento` (`id`, `dnombre`, `direccion`) VALUES
+(1, 'Programacion', 1),
+(2, 'Ventas', 2);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `direccion`
+--
+
+CREATE TABLE `direccion` (
+  `id` int(11) NOT NULL,
+  `calle` varchar(20) DEFAULT NULL,
+  `numero` int(11) DEFAULT NULL,
+  `cpostal` varchar(5) DEFAULT NULL,
+  `provincia` varchar(20) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Volcado de datos para la tabla `direccion`
+--
+
+INSERT INTO `direccion` (`id`, `calle`, `numero`, `cpostal`, `provincia`) VALUES
+(1, 'Mata', 1, '11111', 'Sevilla'),
+(2, 'Mata', 2, '11111', 'Sevilla'),
+(3, 'Ham', 30, '11111', 'Sevilla');
 
 -- --------------------------------------------------------
 
@@ -50,18 +73,33 @@ INSERT INTO `departamento` (`id`, `dnombre`) VALUES
 
 CREATE TABLE `empleado` (
   `id` int(11) NOT NULL,
-  `nombre` varchar(20) DEFAULT NULL,
-  `apellido` varchar(20) DEFAULT NULL,
+  `nombre` varchar(20) NOT NULL,
+  `apellido` varchar(20) NOT NULL,
   `salario` float DEFAULT NULL,
-  `dep` int(11) DEFAULT NULL
+  `dep` int(11) DEFAULT NULL,
+  `direccion` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Volcado de datos para la tabla `empleado`
 --
 
-INSERT INTO `empleado` (`id`, `nombre`, `apellido`, `salario`, `dep`) VALUES
-(1, 'Pepe', 'Perez', 1000, NULL);
+INSERT INTO `empleado` (`id`, `nombre`, `apellido`, `salario`, `dep`, `direccion`) VALUES
+(1, 'Pepe', 'Perez', 2000, 1, 3),
+(2, 'Petra', 'Perez', 2000, 1, 3);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `informacion_financiera_departamento`
+--
+
+CREATE TABLE `informacion_financiera_departamento` (
+  `departamento` int(11) NOT NULL,
+  `presupuesto` float DEFAULT NULL,
+  `ingresos` float DEFAULT NULL,
+  `gastos` float DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Índices para tablas volcadas
@@ -72,35 +110,43 @@ INSERT INTO `empleado` (`id`, `nombre`, `apellido`, `salario`, `dep`) VALUES
 --
 ALTER TABLE `departamento`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `dnombre` (`dnombre`);
+  ADD UNIQUE KEY `dnombre` (`dnombre`),
+  ADD UNIQUE KEY `direccion` (`direccion`);
+
+--
+-- Indices de la tabla `direccion`
+--
+ALTER TABLE `direccion`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indices de la tabla `empleado`
 --
 ALTER TABLE `empleado`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `cc_nom_ape` (`nombre`,`apellido`),
-  ADD KEY `dep` (`dep`);
+  ADD UNIQUE KEY `nombre` (`nombre`,`apellido`);
+
+--
+-- Indices de la tabla `informacion_financiera_departamento`
+--
+ALTER TABLE `informacion_financiera_departamento`
+  ADD PRIMARY KEY (`departamento`);
 
 --
 -- AUTO_INCREMENT de las tablas volcadas
 --
 
 --
+-- AUTO_INCREMENT de la tabla `direccion`
+--
+ALTER TABLE `direccion`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
 -- AUTO_INCREMENT de la tabla `empleado`
 --
 ALTER TABLE `empleado`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- Restricciones para tablas volcadas
---
-
---
--- Filtros para la tabla `empleado`
---
-ALTER TABLE `empleado`
-  ADD CONSTRAINT `empleado_ibfk_1` FOREIGN KEY (`dep`) REFERENCES `departamento` (`id`);
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

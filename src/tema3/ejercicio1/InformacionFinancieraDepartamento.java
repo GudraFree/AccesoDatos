@@ -10,6 +10,7 @@ package tema3.ejercicio1;
  * @author Perig
  */
 public class InformacionFinancieraDepartamento {
+    private int id;
     private Departamento departamento;
     private float presupuesto;
     private float ingresos;
@@ -21,6 +22,16 @@ public class InformacionFinancieraDepartamento {
         this.ingresos = ingresos;
         this.gastos = gastos;
     }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getId() {
+        return id;
+    }
+    
+    
 
     public void setDepartamento(Departamento departamento) {
         this.departamento = departamento;

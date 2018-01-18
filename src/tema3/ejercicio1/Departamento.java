@@ -15,6 +15,7 @@ public class Departamento  implements java.io.Serializable {
      private String dnombre;
      private Set empleados = new HashSet(0);
      private Direccion direccion;
+     private Empleado jefe;
 
     public Departamento() {
     }
@@ -35,6 +36,13 @@ public class Departamento  implements java.io.Serializable {
         this.dnombre = dnombre;
         this.direccion = direccion;
     }
+
+    public Departamento(int id, String dnombre, Direccion direccion, Empleado jefe) {
+        this.id = id;
+        this.dnombre = dnombre;
+        this.direccion = direccion;
+        this.jefe = jefe;
+    }
     
     
    
@@ -52,6 +60,14 @@ public class Departamento  implements java.io.Serializable {
 
     public void setDireccion(Direccion direccion) {
         this.direccion = direccion;
+    }
+
+    public Empleado getJefe() {
+        return jefe;
+    }
+
+    public void setJefe(Empleado jefe) {
+        this.jefe = jefe;
     }
     
     public String getDnombre() {

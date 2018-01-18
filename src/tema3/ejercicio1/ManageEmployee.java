@@ -25,7 +25,7 @@ public class ManageEmployee {
     public static void main(String[] args) {
         ManageEmployee me = new ManageEmployee();
         int opcion;
-        while ((opcion = me.menu()) != 8) {
+        while ((opcion = me.menu()) != 9) {
             switch (opcion) {
                 case 1: // Alta
                     me.altaDep();
@@ -45,7 +45,10 @@ public class ManageEmployee {
                 case 6: // Modificación
                     me.modifEmp();
                     break;
-                case 7: //listado
+                case 7: //hacer jefe
+                    me.hacerJefe();
+                    break;
+                case 8: //listado
                     me.listar();
                     break;
             }
@@ -67,11 +70,12 @@ public class ManageEmployee {
             System.out.println("\t4. Alta");
             System.out.println("\t5. Baja");
             System.out.println("\t6. Actualización");
-            System.out.println("7. Listar todos los departamentos y sus empleados");
-            System.out.println("8. Salir");
+            System.out.println("7. Hacer jefe de departamento a algún empleado");
+            System.out.println("8. Listar todos los departamentos y sus empleados");
+            System.out.println("9. Salir");
             try {
                 opcion = sc.nextInt();
-                opcionInvalida = opcion < 1 || opcion > 8;
+                opcionInvalida = opcion < 1 || opcion > 9;
                 if (opcionInvalida) {
                     System.out.println("Error, opción introducida no válida\n");
                 }
@@ -95,13 +99,13 @@ public class ManageEmployee {
         sc.nextLine();
         System.out.println("Introduzca nombre departamento");
         nombre = sc.nextLine();
-        Integer dirId = introducirDireccion();
 
         try{
             tx = session.beginTransaction();
+            Integer dirId = introducirDireccion(session, tx);
             Direccion dir = (Direccion) session.get(Direccion.class, dirId);
             Departamento dep = new Departamento(codigo, nombre, dir);
-            
+            introducirInfoFinanciera(dep, session, tx);
             session.save(dep);
             tx.commit();
         }catch (HibernateException e) { 
@@ -183,10 +187,10 @@ public class ManageEmployee {
         System.out.println("Introduzca departamento empleado (código)");
         idDep = sc.nextInt();
         sc.nextLine();
-        Integer dirId = introducirDireccion();
 
         try{
             tx = session.beginTransaction();
+            Integer dirId = introducirDireccion(session, tx);
             Direccion dir = (Direccion) session.get(Direccion.class, dirId);
             Empleado emp = new Empleado(nombre, apellido, salario, dir);
             
@@ -304,6 +308,64 @@ public class ManageEmployee {
 
     }
     
+    public void hacerJefe() {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = null;
+        String nombre="", apellido=""; float salario = 0; int idDep = 0;
+        // pedimos datos
+        sc = new Scanner(System.in);
+        System.out.println("Introduzca nombre empleado");
+        nombre = sc.nextLine();
+        System.out.println("Introduzca apellido empleado");
+        apellido = sc.nextLine();
+
+        try{
+            tx = session.beginTransaction();
+            Query query = session.createQuery("from Empleado where nombre = :nombre and apellido = :apellido ");
+            query.setParameter("nombre", nombre);
+            query.setParameter("apellido", apellido);
+            List list = query.list();
+            Empleado emp = (Empleado)list.get(0);
+            
+            // obtengo el id del departamento
+            query = session.createQuery("from Departamento");
+            list = query.list();
+            for (Object l : list) {
+                Departamento d = (Departamento) l;
+                Set empleados = d.getEmpleados();
+                for(Object empleado : empleados) {
+                    Empleado e = (Empleado) empleado;
+                    if(e.getId() == emp.getId()) {
+                        idDep = d.getId();
+                    }
+                }
+            }
+                
+            Departamento dep = (Departamento)session.get(Departamento.class, idDep);
+            
+            System.out.println("¿Quiere hacer a "+nombre+" "+apellido+" jefe del departamento de "+dep.getDnombre()+"? (s/n)");
+            String respuesta = sc.nextLine();
+            switch (respuesta) {
+                case "s":
+                    dep.setJefe(emp);
+                    session.update(dep);
+                    tx.commit();
+                    System.out.println(nombre+" "+apellido+" es jefe de departamento");
+                    break;
+                case "n":
+                    System.out.println("No se ha asignado jefe");
+                    break;
+                default:
+                    System.out.println("Error, opción introducida no válida");
+            }
+        }catch (HibernateException e) { 
+            if (tx!=null) tx.rollback();
+                e.printStackTrace();
+        }finally {
+            session.close();
+        } 
+    }
+    
     public void listar() {
         Session session = HibernateUtil.getSessionFactory().openSession();
 //        Transaction tx = null;
@@ -329,7 +391,7 @@ public class ManageEmployee {
         }
     }
     
-    private Integer introducirDireccion() {
+    private Integer introducirDireccion(Session session, Transaction tx) throws HibernateException {
         System.out.println("Introduzca dirección:");
         System.out.println("Calle:");
         String calle = sc.nextLine();
@@ -341,11 +403,8 @@ public class ManageEmployee {
         System.out.println("Provincia:");
         String provincia = sc.nextLine();
         
-        Session session = HibernateUtil.getSessionFactory().openSession();
-        Transaction tx = null;
         Integer dirId = 0;
         try{
-            tx = session.beginTransaction();
             Query q = session.createQuery("from Direccion where calle = :calle and numero = :numero and cpostal = :cpostal and provincia = :provincia");
             q.setParameter("calle", calle);
             q.setParameter("numero", numero);
@@ -357,14 +416,30 @@ public class ManageEmployee {
             if(dir==null) dir = new Direccion(calle,numero,cpostal,provincia);
             
             dirId = (Integer) session.save(dir);
-            tx.commit();
         }catch (HibernateException e) { 
-            if (tx!=null) tx.rollback();
-                e.printStackTrace();
-        }finally {
-            session.close();
+            throw e;
         }
         
         return dirId;
+    }
+    
+    private void introducirInfoFinanciera(Departamento dep, Session session, Transaction tx) throws HibernateException {
+        float presupuesto, ingresos, gastos;
+        System.out.println("Introduzca presupuesto departamento: ");
+        presupuesto = sc.nextFloat();
+        sc.nextLine();
+        System.out.println("Introduzca ingresos departamento");
+        ingresos = sc.nextFloat();
+        sc.nextLine();
+        System.out.println("Introduzca gastos departamento");
+        gastos = sc.nextFloat();
+        sc.nextLine();
+        
+        try {
+            InformacionFinancieraDepartamento ifd = new InformacionFinancieraDepartamento(dep, presupuesto, ingresos, gastos);
+            session.save(ifd);
+        } catch (HibernateException e) {
+            throw e;
+        }
     }
 }
