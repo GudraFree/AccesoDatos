@@ -3,14 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Tema1.ejercicio02;
+package Examenes.trimestre1.exTrimestral.localizarFicheros;
 
 /**
  *
  * @author Perig
  */
-public class LineaComandosException extends Exception {
-    LineaComandosException(String mensaje) {
-        
+public class SintaxisException extends Exception {
+
+    public SintaxisException() {
     }
+    
 }

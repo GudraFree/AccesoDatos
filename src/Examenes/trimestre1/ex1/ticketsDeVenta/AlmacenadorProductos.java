@@ -26,7 +26,7 @@ que contenga la misma información y la misma estructura, pero en la que
 se actualiza la cantidad total en los productos que ya estuvieran registrados
 o añade los nuevos productos que ya estuvieran previamente registrados
  */
-package Examenes.ex1_ticketsDeVenta;
+package Examenes.trimestre1.ex1.ticketsDeVenta;
 
 import java.io.File;
 import java.io.FileNotFoundException;
