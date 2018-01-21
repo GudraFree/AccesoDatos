@@ -38,26 +38,30 @@ Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 
 Contributor(s):
-
-[ NOTA ]
-TODO: implementar tabla (aquí) en base de datos
-create table informacion_financiera_departamento (
-    departamento int primary key references departamento(id),
-    presupuesto float,
-    ingresos float,
-    gastos float
-    );
 -->
 <hibernate-mapping>
-    <class name="tema3.ejercicio1.InformacionFinancieraDepartamento" table="informacion_financiera_departamento">
-        <id column="departamento" name="id" type="int">
-            <generator class="foreign">
-                <param name="property">departamento</param>
-            </generator>
+    <class name="tema3.ejercicio1.pojos.Proyecto" table="proyecto">
+        <id name="id" type="java.lang.Integer">
+            <column name="id"/>
+            <generator class="identity"/>
         </id>
-        <one-to-one class="tema3.ejercicio1.Departamento" constrained="true" name="departamento"/>
-        <property column="presupuesto" name="presupuesto" type="java.lang.Float"/>
-        <property column="ingresos" name="ingresos" type="java.lang.Float"/>
-        <property column="gastos" name="gastos" type="java.lang.Float"/>
+        <property name="nombre" type="string">
+            <column length="20" name="nombre"/>
+        </property>
+        <property name="descripcion" type="string">
+            <column length="200" name="descripcion"/>
+        </property>
+        <property name="fechaInicio" type="date">
+            <column name="fechaInicio"/>
+        </property>
+        <property name="fechaFin" type="date">
+            <column name="fechaFin"/>
+        </property>
+        <many-to-one class="tema3.ejercicio1.pojos.Departamento" column="departamento" name="departamento" not-null="true"/>
+        <many-to-one class="tema3.ejercicio1.pojos.Empleado" column="responsable" name="responsable" not-null="false"/>
+        <set name="empleados" cascade="all" table="proy_emp">
+            <key column="proyId"/>
+            <many-to-many column="empId" class="tema3.ejercicio1.pojos.Empleado"/>
+        </set>
     </class>
 </hibernate-mapping>

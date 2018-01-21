@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 08-ene-2018 9:40:04 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+  <class catalog="hibernate" name="tema3.ejercicio1.pojos.Departamento" optimistic-lock="version" table="departamento">
+    <id name="id" type="int">
+      <column name="id"/>
+      <generator class="assigned"/>
+    </id>
+    <property name="dnombre" type="string">
+      <column length="20" name="dnombre" not-null="true" unique="true"/>
+    </property>
+    <many-to-one class="tema3.ejercicio1.pojos.Direccion" column="direccion" name="direccion" not-null="true" unique="true"/>
+    <many-to-one class="tema3.ejercicio1.pojos.Empleado" column="jefe" name="jefe" not-null="true" unique="true"/>
+    <!--        <set name="empleados" table="empleado" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="dep" />
+            </key>
+            <one-to-many class="tema3.ejercicio1.Empleado" />
+        </set>-->
+    <set cascade="all" name="empleados">
+      <key column="dep"/>
+      <one-to-many class="tema3.ejercicio1.pojos.Empleado"/>
+    </set>
+  </class>
+</hibernate-mapping>

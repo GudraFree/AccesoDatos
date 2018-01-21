@@ -1,4 +1,4 @@
-package tema3.ejercicio1;
+package tema3.ejercicio1.pojos;
 // Generated 08-ene-2018 9:40:03 by Hibernate Tools 4.3.1
 
 
@@ -13,7 +13,7 @@ public class Departamento  implements java.io.Serializable {
 
      private int id;
      private String dnombre;
-     private Set empleados = new HashSet(0);
+     private Set<Empleado> empleados = new HashSet(0);
      private Direccion direccion;
      private Empleado jefe;
 
@@ -25,7 +25,7 @@ public class Departamento  implements java.io.Serializable {
         this.id = id;
         this.dnombre = dnombre;
     }
-    public Departamento(int id, String dnombre, Set empleados) {
+    public Departamento(int id, String dnombre, Set<Empleado> empleados) {
        this.id = id;
        this.dnombre = dnombre;
        this.empleados = empleados;
@@ -77,11 +77,11 @@ public class Departamento  implements java.io.Serializable {
     public void setDnombre(String dnombre) {
         this.dnombre = dnombre;
     }
-    public Set getEmpleados() {
+    public Set<Empleado> getEmpleados() {
         return this.empleados;
     }
     
-    public void setEmpleados(Set empleados) {
+    public void setEmpleados(Set<Empleado> empleados) {
         this.empleados = empleados;
     }
 

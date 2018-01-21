@@ -1,4 +1,4 @@
-package tema3.ejercicio1;
+package tema3.ejercicio1.pojos;
 // Generated 08-ene-2018 9:40:03 by Hibernate Tools 4.3.1
 
 

@@ -38,24 +38,25 @@ Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 
 Contributor(s):
+
+[ NOTA ] hecho
+create table informacion_financiera_departamento (
+    departamento int primary key references departamento(id),
+    presupuesto float,
+    ingresos float,
+    gastos float
+    );
 -->
 <hibernate-mapping>
-    <class name="tema3.ejercicio1.Direccion" table="direccion" catalog="hibernate" optimistic-lock="version">
-        <id name="id" type="java.lang.Integer">
-            <column name="id" />
-            <generator class="identity" />
-        </id>
-        <property name="calle" type="string">
-            <column name="calle" length="20"/>
-        </property>
-        <property name="numero" type="java.lang.Integer">
-            <column name="numero"/>
-        </property>
-        <property name="cpostal" type="string">
-            <column name="cpostal" length="5"/>
-        </property>
-        <property name="provincia" type="string">
-            <column name="provincia" length="20"/>
-        </property>
-    </class>
+  <class name="tema3.ejercicio1.pojos.InformacionFinancieraDepartamento" table="informacion_financiera_departamento">
+    <id column="departamento" name="id" type="int">
+      <generator class="foreign">
+        <param name="property">departamento</param>
+      </generator>
+    </id>
+    <one-to-one class="tema3.ejercicio1.pojos.Departamento" constrained="true" name="departamento"/>
+    <property column="presupuesto" name="presupuesto" type="java.lang.Float"/>
+    <property column="ingresos" name="ingresos" type="java.lang.Float"/>
+    <property column="gastos" name="gastos" type="java.lang.Float"/>
+  </class>
 </hibernate-mapping>
