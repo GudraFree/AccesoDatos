@@ -484,7 +484,48 @@ public class ManageEmployee {
     }
     
     public void asignarResponsable() {
-        // TODO: asignar responsable
+        String nProyecto="", nEmp="", aEmp="";
+        
+        System.out.println("Introduzca nombre del proyecto");
+        nProyecto = sc.nextLine();
+        
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+            Query query = session.createQuery("from Proyecto where nombre = :nombre");
+            query.setParameter("nombre", nProyecto);
+            List<Proyecto> list = query.list();
+            if(list.size()>0) {
+                Proyecto proy = list.get(0);
+                Set<Empleado> empleados = proy.getEmpleados();
+                if(empleados.size()>0) {
+                    System.out.println("Introduzca nombre empleado");
+                    nEmp = sc.nextLine();
+                    System.out.println("Introduzca apellido empleado");
+                    aEmp = sc.nextLine();
+                    query = session.createQuery("from Empleado where nombre = :nombre and apellido = :apellido ");
+                    query.setParameter("nombre", nEmp);
+                    query.setParameter("apellido", aEmp);
+                    List<Empleado> list2 = query.list();
+                    if(list2.size()>0) {
+                        Empleado emp = list2.get(0);
+                        if(empleados.contains(emp)) {
+                            proy.setResponsable(emp);
+                            session.save(proy);
+                            System.out.println("Responsable asignado con éxito");
+                        } else System.out.println("Error, el empleado introducido no pertenece al proyecto");
+                    } else System.out.println("Error, el empleado introducido no existe");
+                } else System.out.println("Error, el proyecto no tiene empleados");
+            } else System.out.println("Error, el proyecto introducido no existe");
+            tx.commit(); 
+            
+        } catch (HibernateException e) {
+            if (tx!=null) tx.rollback();
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
     }
     
     public void listar() {

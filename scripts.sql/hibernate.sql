@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 22-01-2018 a las 00:00:33
+-- Tiempo de generación: 22-01-2018 a las 09:29:48
 -- Versión del servidor: 10.1.28-MariaDB
 -- Versión de PHP: 7.1.11
 
@@ -135,7 +135,9 @@ CREATE TABLE `proyecto` (
 --
 
 INSERT INTO `proyecto` (`id`, `nombre`, `descripcion`, `fechaInicio`, `fechaFin`, `departamento`, `responsable`) VALUES
-(1, 'Publi', 'Vender muchos productos', '2018-01-21', '2019-01-21', 3, NULL);
+(1, 'Publi', 'Vender muchos productos', '2018-01-21', '2019-01-21', 3, 3),
+(2, 'PFDG', 'Un juego', '2018-03-01', '2018-06-01', 1, NULL),
+(3, 'Prueba', 'prueba', '1970-01-01', '2018-01-22', 2, NULL);
 
 -- --------------------------------------------------------
 
@@ -220,7 +222,7 @@ ALTER TABLE `empleado`
 -- AUTO_INCREMENT de la tabla `proyecto`
 --
 ALTER TABLE `proyecto`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
