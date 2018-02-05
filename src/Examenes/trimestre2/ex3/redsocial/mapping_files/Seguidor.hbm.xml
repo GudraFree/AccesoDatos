@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 05-feb-2018 8:38:39 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+  <class catalog="redsocial" name="redsocial.pojos.Seguidor" optimistic-lock="version" table="seguidor">
+    <id name="id" type="java.lang.Integer">
+      <column name="id"/>
+      <generator class="identity"/>
+    </id>
+    <property name="nick" type="string">
+      <column length="20" name="nick" unique="true"/>
+    </property>
+    <property name="correo" type="string">
+      <column length="40" name="correo"/>
+    </property>
+    <property name="pais" type="string">
+      <column length="20" name="pais"/>
+    </property>
+  </class>
+</hibernate-mapping>
