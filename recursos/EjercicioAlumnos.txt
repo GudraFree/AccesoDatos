@@ -1,0 +1,59 @@
+CREATE OR REPLACE TYPE DIRECCION AS OBJECT
+(
+  CALLE  VARCHAR2(25),
+  CIUDAD VARCHAR2(20),
+  CODIGO_POST NUMBER(5)
+);
+/
+
+CREATE OR REPLACE TYPE PERSONA AS OBJECT
+(
+  CODIGO NUMBER,
+  NOMBRE VARCHAR2(35),
+  DIREC  DIRECCION,
+  FECHA_NAC DATE
+);
+/
+
+CREATE OR REPLACE TYPE T_ALUMNO AS OBJECT
+(
+    CODIGO NUMBER,
+    PER  PERSONA,
+    NOTA1 NUMBER,
+    NOTA2 NUMBER,
+    NOTA3 NUMBER,
+    MEMBER FUNCTION GET_MEDIA RETURN NUMBER  
+);
+/
+
+CREATE OR REPLACE TYPE BODY T_ALUMNO AS
+
+  MEMBER FUNCTION GET_MEDIA RETURN NUMBER IS
+  media NUMBER;
+  BEGIN
+    media := (NOTA1+NOTA2+NOTA3)/3;
+    RETURN media;
+  END;
+END;
+/
+
+
+CREATE TABLE ALUMNOS2 OF T_ALUMNO (
+  CODIGO PRIMARY KEY
+);
+
+INSERT INTO ALUMNOS2 VALUES(1, PERSONA(
+                                0, 'Juan Pérez ', DIRECCION (
+                                    'C/Los manantiales 5', 'GUADALAJARA', 19005),
+                                TO_DATE('1989-12-09','YYYY-MM-DD')),
+                            10, 6, 7
+                            );
+
+INSERT INTO ALUMNOS2 VALUES(2, PERSONA(
+                                1, 'Jose Juan ', DIRECCION (
+                                    'C/Los nepes 3', 'CADIZ', 11105),
+                                TO_DATE('1989-12-09','YYYY-MM-DD')),
+                            4, 2, 6
+                            );
+
+select CODIGO, A.PER.NOMBRE, A.GET_MEDIA() from Alumnos2 A;
